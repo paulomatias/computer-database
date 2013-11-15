@@ -1,5 +1,8 @@
 package com.excilys.computerdatabase.controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -18,15 +21,15 @@ import java.io.IOException;
 @WebServlet("/dashboard")
 public class DashboardController extends HttpServlet {
 
-    public static final String TAG = DashboardController.class.getSimpleName();
+    private static Logger logger = LoggerFactory.getLogger(DashboardController.class);
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        System.out.println(TAG + ": Entering doGet");
+        logger.debug("Entering doGet");
 
         resp.sendRedirect("dashboard.jsp");
 
-        System.out.println(TAG + ": Leaving doGet");
+        logger.debug("Leaving doGet");
     }
 
 }

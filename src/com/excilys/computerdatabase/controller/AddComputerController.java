@@ -1,5 +1,8 @@
 package com.excilys.computerdatabase.controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -17,23 +20,23 @@ import java.io.IOException;
 @WebServlet("/addComputer")
 public class AddComputerController extends HttpServlet {
 
-    public static final String TAG = AddComputerController.class.getSimpleName();
+    private static Logger logger = LoggerFactory.getLogger(AddComputerController.class);
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        System.out.println(TAG + ": Entering doGet");
+        logger.debug("Entering doGet");
 
         resp.sendRedirect("addComputer.jsp");
 
-        System.out.println(TAG + ": Leaving doGet");
+        logger.debug("Leaving doGet");
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        System.out.println(TAG + ": Entering doPost");
+        logger.debug("Entering doPost");
 
         resp.sendRedirect("dashboard");
 
-        System.out.println(TAG + ": Entering doPost");
+        logger.debug("Leaving doPost");
     }
 }
