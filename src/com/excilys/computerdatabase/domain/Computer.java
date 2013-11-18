@@ -1,5 +1,8 @@
 package com.excilys.computerdatabase.domain;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 /**
@@ -14,11 +17,15 @@ public class Computer {
     /*
      * Attributes
      */
+
+    private static final DateFormat DATE_FORMAT = new SimpleDateFormat("dd MMMM yyyy");
+
     private Long id;
     private String name;
-    private Date introduced;
-    private Date discontinued;
+    private Calendar introduced;
+    private Calendar discontinued;
     private Company company;
+
 
 
     /*
@@ -26,7 +33,7 @@ public class Computer {
      */
 
     public Computer() {}
-    public Computer(Long id, String name, Date introduced, Date discontinued, Company company) {
+    public Computer(Long id, String name, Calendar introduced, Calendar discontinued, Company company) {
         super();
         this.id = id;
         this.name = name;
@@ -94,6 +101,70 @@ public class Computer {
         return true;
     }
 
+
+    /*
+     * Builder
+     */
+    public static class Builder {
+
+        Computer computer;
+
+        private Builder() {
+            computer = new Computer();
+        }
+
+        public Builder id(Long id) {
+            if(id != null)
+                this.computer.id = id;
+            return this;
+        }
+
+        public Builder name(String name) {
+            this.computer.name = name;
+            return this;
+        }
+
+        public Builder introduced(Calendar introduced) {
+            this.computer.introduced = introduced;
+            return this;
+        }
+
+        public Builder introduced(Date introduced) {
+            if(introduced != null) {
+                this.computer.introduced = Calendar.getInstance();
+                this.computer.introduced.setTime(introduced);
+            }
+            return this;
+        }
+
+        public Builder discontinued(Calendar discontinued) {
+            this.computer.discontinued = discontinued;
+            return this;
+        }
+
+        public Builder discontinued(Date discontinued) {
+            if(discontinued != null) {
+                this.computer.discontinued = Calendar.getInstance();
+                this.computer.discontinued.setTime(discontinued);
+            }
+            return this;
+        }
+
+        public Builder company(Company company) {
+            this.computer.company = company;
+            return this;
+        }
+
+        public Computer build() {
+            return this.computer;
+        }
+
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
     /*
      * Getter/Setter
      */
@@ -115,20 +186,44 @@ public class Computer {
         this.name = name;
     }
 
-    public Date getIntroduced() {
+    public Calendar getIntroduced() {
         return introduced;
     }
 
-    public void setIntroduced(Date introduced) {
+    public String getIntroducedFormated() {
+        if(introduced != null)
+            return DATE_FORMAT.format(introduced.getTime());
+        return "N/A";
+    }
+
+    public void setIntroduced(Calendar introduced) {
         this.introduced = introduced;
     }
 
-    public Date getDiscontinued() {
+    public void setIntroduced(Date introduced) {
+        if(this.introduced == null)
+            this.introduced = Calendar.getInstance();
+        this.introduced.setTime(introduced);
+    }
+
+    public Calendar getDiscontinued() {
         return discontinued;
     }
 
-    public void setDiscontinued(Date discontinued) {
+    public String getDiscontinuedFormated() {
+        if(discontinued != null)
+            return DATE_FORMAT.format(discontinued.getTime());
+        return "N/A";
+    }
+
+    public void setDiscontinued(Calendar discontinued) {
         this.discontinued = discontinued;
+    }
+
+    public void setDiscontinued(Date discontinued) {
+        if(this.discontinued == null)
+            this.discontinued = Calendar.getInstance();
+        this.discontinued.setTime(discontinued);
     }
 
     public Company getCompany() {
@@ -138,4 +233,6 @@ public class Computer {
     public void setCompany(Company company) {
         this.company = company;
     }
+
+
 }

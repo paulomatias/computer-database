@@ -1,6 +1,14 @@
 <jsp:include page="include/header.jsp" />
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 
 <section id="main">
+    <c:if test="${requestScope.submitAdd == true}">
+        <div class="alert-message">Computer added successfully</div>
+    </c:if>
+    <c:if test="${requestScope.submitEdit == true}">
+        <div class="alert-message">Successfully updated</div>
+    </c:if>
+
 	<h1 id="homeTitle">456 Computers found</h1>
 	<div id="actions">
 		<form action="" method="GET">
@@ -26,26 +34,17 @@
 					<th>Company</th>
 				</tr>
 			</thead>
+            <!-- Browse attribute computers -->
 			<tbody>
-
-				<tr>
-					<td><a href="#" onclick="">ThinkPad T420</a></td>
-					<td>2011-01-01</td>
-					<td>2013-03-04</td>
-					<td>Lenovo</td>
-				</tr>
-				<tr>
-					<td><a href="#">Precision 3500</a></td>
-					<td>2010-05-07</td>
-					<td>2012-06-01</td>
-					<td>Dell</td>
-				</tr>
-				<tr>
-					<td><a href="#">Macbook Air</a></td>
-					<td>2005-05-09</td>
-					<td>2008-06-06</td>
-					<td>Apple</td>
-				</tr>
+                <c:forEach var="comp" items="${computers}" >
+                    <tr>
+                        <td><a href="editComputer?id=${comp.id}" onclick="">${comp.name}</a></td>
+                        <!-- Calls getIntroducedFormated() method using reflection -->
+                        <td>${comp.introducedFormated}</td>
+                        <td>${comp.discontinuedFormated}</td>
+                        <td>${comp.company.name}</td>
+                    </tr>
+                </c:forEach>
 			</tbody>
 		</table>
 </section>

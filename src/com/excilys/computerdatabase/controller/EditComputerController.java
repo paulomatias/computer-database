@@ -3,6 +3,7 @@ package com.excilys.computerdatabase.controller;
 import com.excilys.computerdatabase.domain.Computer;
 import com.excilys.computerdatabase.dto.ComputerDto;
 import com.excilys.computerdatabase.mapper.ComputerMapper;
+import com.excilys.computerdatabase.persistence.CompanyDao;
 import com.excilys.computerdatabase.persistence.ComputerDao;
 import com.excilys.computerdatabase.persistence.factory.DaoFactory;
 import com.excilys.computerdatabase.service.CompanyService;
@@ -29,12 +30,13 @@ import java.text.SimpleDateFormat;
  * Date: 15/11/13
  * Description: N/A
  */
-@WebServlet("/addComputer")
-public class AddComputerController extends HttpServlet {
+@WebServlet("/editComputer")
+public class EditComputerController extends HttpServlet {
 
     /*
      * Attributes
      */
+    private static final String PARAM_COMPUTER_ID = "id";
     private static final String PARAM_COMPUTER_NAME = "computer_name";
     private static final String PARAM_COMPUTER_INTRODUCED = "computer_introduced";
     private static final String PARAM_COMPUTER_DISCONTINUED = "computer_discontinued";
@@ -46,7 +48,7 @@ public class AddComputerController extends HttpServlet {
 
     private static final DateFormat DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy");
 
-    private static Logger logger = LoggerFactory.getLogger(AddComputerController.class);
+    private static Logger logger = LoggerFactory.getLogger(EditComputerController.class);
 
     private CompanyService companyService;
     private ComputerService computerService;
@@ -56,7 +58,7 @@ public class AddComputerController extends HttpServlet {
     /*
      * Constructurs
      */
-    public AddComputerController() {
+    public EditComputerController() {
         super();
         companyService = ServiceFactory.INSTANCE.getCompanyService();
         computerService = ServiceFactory.INSTANCE.getComputerService();
@@ -66,9 +68,12 @@ public class AddComputerController extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         logger.debug("Entering doGet");
 
-        RequestDispatcher dispatcher = req.getRequestDispatcher("WEB-INF/addComputer.jsp");
+        RequestDispatcher dispatcher = req.getRequestDispatcher("WEB-INF/editComputer.jsp");
 
-        req.setAttribute(ATTR_COMPANIES, companyService.retrieveAll());
+        if(req.getParameter(PARAM_COMPUTER_ID) != null && !req.getParameter(PARAM_COMPUTER_ID).isEmpty())
+            req.setAttribute(ATTR_COMPUTER, ComputerMapper.toDto(computerService.retrieve(Long.parseLong(req.getParameter(PARAM_COMPUTER_ID)))));
+
+        req.setAttribute(ATTR_COMPANIES,companyService.retrieveAll());
 
         logger.debug("Leaving doGet");
         dispatcher.forward(req,resp);
@@ -79,10 +84,11 @@ public class AddComputerController extends HttpServlet {
         logger.debug("Entering doPost");
 
         int errorBits = 0;
-        RequestDispatcher dispatcher = req.getRequestDispatcher("WEB-INF/addComputer.jsp");
+        RequestDispatcher dispatcher = req.getRequestDispatcher("WEB-INF/editComputer.jsp");
 
         //Build DTO
         ComputerDto cdto = ComputerDto.builder()
+                .id(Long.parseLong(req.getParameter(PARAM_COMPUTER_ID)))
                 .name(req.getParameter(PARAM_COMPUTER_NAME))
                 .introduced(req.getParameter(PARAM_COMPUTER_INTRODUCED))
                 .discontinued(req.getParameter(PARAM_COMPUTER_DISCONTINUED))
@@ -94,14 +100,16 @@ public class AddComputerController extends HttpServlet {
         //Add computer if everything went good
         if(errorBits == 0) {
             Computer computer = ComputerMapper.fromDto(cdto);
-            computerService.create(computer);
-            resp.sendRedirect("dashboard?submitAdd=true");
+            if(computerService.update(computer))
+                resp.sendRedirect("dashboard?submitEdit=true");
+            else
+                resp.sendRedirect("dashboard?submitEdit=false");
             return;
         }
 
         //Otherwise reload current page with previous content
 
-        req.setAttribute(ATTR_COMPANIES, companyService.retrieveAll());
+        req.setAttribute(ATTR_COMPANIES,companyService.retrieveAll());
         req.setAttribute(ATTR_COMPUTER,cdto);
         req.setAttribute(ATTR_ERROR_BITS,errorBits);
 
