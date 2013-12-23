@@ -1,5 +1,6 @@
 package com.excilys.computerdatabase.service.impl;
 
+import com.excilys.computerdatabase.common.Page;
 import com.excilys.computerdatabase.domain.Computer;
 import com.excilys.computerdatabase.persistence.ComputerDao;
 import com.excilys.computerdatabase.persistence.factory.DaoFactory;
@@ -24,7 +25,7 @@ public class ComputerServiceImpl implements ComputerService {
     }
 
     @Override
-    public List<Computer> retrieveAll() {
+    public Page<Computer> retrieveAll() {
         return computerDao.retrieveAll();
     }
 

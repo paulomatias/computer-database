@@ -12,8 +12,6 @@ import java.util.List;
  * Description: N/A
  */
 public interface CompanyService {
-
     public List<Company> retrieveAll();
     public Company retrieve(Long companyId);
-
 }

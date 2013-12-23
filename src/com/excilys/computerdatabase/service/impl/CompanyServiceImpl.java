@@ -27,5 +27,4 @@ public class CompanyServiceImpl implements CompanyService {
     public Company retrieve(Long companyId) {
         return companyDao.retrieve(companyId);
     }
-
 }

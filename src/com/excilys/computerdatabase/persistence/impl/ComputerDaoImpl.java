@@ -1,5 +1,6 @@
 package com.excilys.computerdatabase.persistence.impl;
 
+import com.excilys.computerdatabase.common.Page;
 import com.excilys.computerdatabase.domain.Company;
 import com.excilys.computerdatabase.domain.Computer;
 import com.excilys.computerdatabase.persistence.ComputerDao;
@@ -73,11 +74,11 @@ public class ComputerDaoImpl implements ComputerDao {
     }
 
     @Override
-    public List<Computer> retrieveAll() {
+    public Page<Computer> retrieveAll() {
         logger.debug("Entering retrieveAll");
 
         List<Computer> computers = new ArrayList<Computer>();
-
+        int count = 0;
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
@@ -91,15 +92,14 @@ public class ComputerDaoImpl implements ComputerDao {
             logger.debug("Creating statement...");
 
             String sql;
-            sql = "SELECT computer.id, computer.name, introduced, discontinued, company.id, company.name FROM computer LEFT JOIN company on computer.company_id = company.id; ";
+            sql = "SELECT computer.id, computer.name, introduced, discontinued, company.id, company.name FROM computer LEFT JOIN company ON computer.company_id = company.id; ";
 
             stmt = conn.prepareStatement(sql);
 
             rs = stmt.executeQuery(sql);
-
             // Extract data from result set
             while (rs.next()) {
-
+                count++;
                 //Create computer result using builder pattern
                 Computer computer = Computer.builder().id(rs.getLong("computer.id"))
                         .name(rs.getString("computer.name"))
@@ -111,6 +111,7 @@ public class ComputerDaoImpl implements ComputerDao {
                 computers.add(computer);
             }
 
+
         } catch (SQLException se) {
             logger.warn("Error in SQL query:" + se.getMessage());
         } finally {
@@ -119,7 +120,10 @@ public class ComputerDaoImpl implements ComputerDao {
 
         logger.debug("Found " + computers.size() + " elements");
 
-        return computers;
+        Page<Computer> computerPage = new Page<Computer>();
+        computerPage.setItems(computers);
+        computerPage.setRecordCount(count);
+        return computerPage;
     }
 
     @Override
@@ -191,14 +195,15 @@ public class ComputerDaoImpl implements ComputerDao {
             if(computer.getDiscontinued() != null)
                 stmt.setDate(3, new java.sql.Date(computer.getDiscontinued().getTime().getTime()));
             else
-                stmt.setNull(3,Types.TIMESTAMP);
+                stmt.setNull(3, Types.TIMESTAMP);
             if(computer.getCompany() != null)
                 stmt.setLong(4, computer.getCompany().getId());
             else
-                stmt.setNull(4,Types.BIGINT);
+                stmt.setNull(4, Types.BIGINT);
             stmt.setLong(5, computer.getId());
 
-            result = stmt.execute();
+            if(stmt.executeUpdate() == 1)
+                result=true;
 
         } catch (SQLException se) {
             logger.warn("Error in SQL query:" + se.getMessage());
@@ -214,11 +219,62 @@ public class ComputerDaoImpl implements ComputerDao {
 
     @Override
     public boolean delete(List<Long> computerIds) {
-        //To change body of implemented methods use File | Settings | File Templates.
-        return false;
+        boolean result = false;
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        String computers = "";
+
+        if(computerIds == null || computerIds.isEmpty()) {
+            logger.debug("Nothing to delete");
+            return false;
+        }
+
+
+        try {
+            // Get a connection from the DaoManager
+            logger.debug("Connecting to database...");
+            conn = DaoFactory.INSTANCE.getConn();
+
+            // Execute query
+            logger.debug("Creating statement...");
+
+            StringBuilder sql = new StringBuilder();
+
+            if(computerIds.size() == 1)
+                sql.append("DELETE FROM computer WHERE id = ?");
+            else {
+
+                sql.append("DELETE FROM computer WHERE id IN (");
+                for(int i=0;i<computerIds.size();i++) {
+                    sql.append("?");
+                    if(i < computerIds.size()-1)
+                        sql.append(", ");
+                }
+                sql.append(")");
+            }
+
+            stmt = conn.prepareStatement(sql.toString());
+
+            for(int i=0;i<computerIds.size();i++) {
+                stmt.setLong(i+1, computerIds.get(i));
+            }
+
+            if(stmt.executeUpdate() > 0)
+                result=true;
+
+        } catch (SQLException se) {
+            logger.warn("Error in SQL query:" + se.getMessage());
+        } finally {
+            closeObjects(conn,stmt);
+        }
+
+        if(!result)
+            logger.warn("Computer deletion failed");
+
+        return result;
     }
 
-    private void closeObjects(Connection conn, Statement stmt) {
+	private void closeObjects(Connection conn, Statement stmt) {
         closeObjects(conn,stmt,null);
     }
 

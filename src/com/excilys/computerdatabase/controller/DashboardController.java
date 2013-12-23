@@ -28,9 +28,8 @@ public class DashboardController extends HttpServlet {
 
     private static final String ATTR_SUBMIT_ADD = "submitAdd";
     private static final String ATTR_SUBMIT_EDIT = "submitEdit";
-
-
-    private static final String ATTR_COMPUTERS = "computers";
+    private static final String ATTR_SUBMIT_DELETE = "submitDelete";
+    private static final String ATTR_COMPUTER_PAGE = "computerPage";
 
     private static Logger logger = LoggerFactory.getLogger(DashboardController.class);
 
@@ -49,8 +48,10 @@ public class DashboardController extends HttpServlet {
             req.setAttribute(ATTR_SUBMIT_ADD,true);
         if(req.getParameter("submitEdit") != null && "true".equals(req.getParameter("submitEdit")))
             req.setAttribute(ATTR_SUBMIT_EDIT,true);
+        if(req.getParameter("submitDelete") != null && "true".equals(req.getParameter("submitDelete")))
+            req.setAttribute(ATTR_SUBMIT_DELETE,true);
 
-        req.setAttribute(ATTR_COMPUTERS, computerService.retrieveAll());
+        req.setAttribute(ATTR_COMPUTER_PAGE,computerService.retrieveAll());
 
         RequestDispatcher dispatcher = req.getRequestDispatcher("WEB-INF/dashboard.jsp");
 

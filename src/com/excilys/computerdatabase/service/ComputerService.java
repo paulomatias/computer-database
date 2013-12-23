@@ -1,5 +1,6 @@
 package com.excilys.computerdatabase.service;
 
+import com.excilys.computerdatabase.common.Page;
 import com.excilys.computerdatabase.domain.Computer;
 
 import java.util.List;
@@ -13,7 +14,7 @@ import java.util.List;
  */
 public interface ComputerService {
     public void create(Computer computer);
-    public List<Computer> retrieveAll();
+    public Page<Computer> retrieveAll();
     public Computer retrieve(Long computerId);
     public boolean update(Computer computer);
     public boolean delete(List<Long> computerIds);

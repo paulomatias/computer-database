@@ -1,5 +1,12 @@
-html {
-    background: #eee;
+body {
+    background: #f2f2f2;
+}
+
+input[type='checkbox'] {
+    margin: 0px;
+    padding:0px;
+    border-radius: 5px;
+    white-space: nowrap;
 }
 
 header h1 {
@@ -62,6 +69,10 @@ table.computers .header a {
     color: #666;
 }
 
+#selectall {
+    display: inline-block;
+}
+
 .col2 {
 	width: 50%;
 }
@@ -70,4 +81,17 @@ table.computers .header a {
 }
 .col5 {
 	width: 30%;
+}
+
+.table-curved {
+    border-collapse: separate;
+    border-radius: 6px;
+    border: 1px solid #bbb;
+}
+
+.container .box {
+    background-color: #f9f9f9;
+    padding: 30px;
+    border: 1px solid #bbb;
+    border-radius: 10px;
 }

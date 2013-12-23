@@ -1,6 +1,7 @@
 package com.excilys.computerdatabase.persistence;
 
 
+import com.excilys.computerdatabase.common.Page;
 import com.excilys.computerdatabase.domain.Computer;
 import java.util.List;
 
@@ -14,7 +15,7 @@ import java.util.List;
 public interface ComputerDao {
 
     public void create(Computer computer);
-    public List<Computer> retrieveAll();
+    public Page<Computer> retrieveAll();
     public Computer retrieve(Long computerId);
     public boolean update(Computer computer);
     public boolean delete(List<Long> computerIds);
