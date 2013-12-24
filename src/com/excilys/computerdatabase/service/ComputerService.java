@@ -15,6 +15,7 @@ import java.util.List;
 public interface ComputerService {
     public void create(Computer computer);
     public Page<Computer> retrieveAll();
+    public Page<Computer> retrievePage(int offset, int limit);
     public Computer retrieve(Long computerId);
     public boolean update(Computer computer);
     public boolean delete(List<Long> computerIds);

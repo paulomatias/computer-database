@@ -5,6 +5,10 @@
     <tlib-version>1.0</tlib-version>
     <short-name>cdblib</short-name>
     <uri>WEB-INF/cdblib</uri>
+    <tag-file>
+        <name>computerPage</name>
+        <path>/WEB-INF/tags/computerPage.tag</path>
+    </tag-file>
     <function>
         <name>bitwiseAnd</name>
         <function-class>com.excilys.computerdatabase.util.CdbLib</function-class>

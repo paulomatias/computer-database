@@ -76,9 +76,16 @@ public class ComputerDaoImpl implements ComputerDao {
     @Override
     public Page<Computer> retrieveAll() {
         logger.debug("Entering retrieveAll");
+        return retrievePage(0,0);
+    }
+
+    @Override
+    public Page<Computer> retrievePage(int offset, int limit) {
+        logger.debug("Entering retrievePage");
 
         List<Computer> computers = new ArrayList<Computer>();
         int count = 0;
+        int totalCount = 0;
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
@@ -91,12 +98,19 @@ public class ComputerDaoImpl implements ComputerDao {
             // Execute query
             logger.debug("Creating statement...");
 
-            String sql;
-            sql = "SELECT computer.id, computer.name, introduced, discontinued, company.id, company.name FROM computer LEFT JOIN company ON computer.company_id = company.id; ";
+            StringBuilder sql = new StringBuilder();
 
-            stmt = conn.prepareStatement(sql);
+            String sql2 = "SELECT count(*) AS count FROM computer";
 
-            rs = stmt.executeQuery(sql);
+            sql.append("SELECT computer.id, computer.name, introduced, discontinued, company.id, company.name FROM computer LEFT JOIN company ON computer.company_id = company.id ");
+            if(limit > 0)
+                sql.append("LIMIT ").append(limit).append(" ");
+            if(offset > 0)
+                sql.append("OFFSET ").append(offset);
+
+            stmt = conn.prepareStatement(sql.toString());
+
+            rs = stmt.executeQuery();
             // Extract data from result set
             while (rs.next()) {
                 count++;
@@ -111,6 +125,17 @@ public class ComputerDaoImpl implements ComputerDao {
                 computers.add(computer);
             }
 
+            rs.close();
+            stmt.close();
+
+
+            stmt = conn.prepareStatement(sql2);
+            rs = stmt.executeQuery();
+
+            rs.first();
+
+            totalCount = rs.getInt("count");
+
 
         } catch (SQLException se) {
             logger.warn("Error in SQL query:" + se.getMessage());
@@ -121,8 +146,17 @@ public class ComputerDaoImpl implements ComputerDao {
         logger.debug("Found " + computers.size() + " elements");
 
         Page<Computer> computerPage = new Page<Computer>();
+
         computerPage.setItems(computers);
         computerPage.setRecordCount(count);
+
+        if(limit > 0) {
+            computerPage.setLimit(limit);
+            computerPage.setCurrentPage((int)Math.floor(offset/limit)+1);
+            computerPage.setPageCount((int)Math.floor(totalCount/limit)+1);
+            computerPage.setTotalCount(totalCount);
+        }
+
         return computerPage;
     }
 

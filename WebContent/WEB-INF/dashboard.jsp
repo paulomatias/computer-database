@@ -1,5 +1,6 @@
 <jsp:include page="include/header.jsp" />
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="WEB-INF/cdblib" prefix="fn" %>
 
 <script src="js/dashboard.js"></script>
 
@@ -14,7 +15,7 @@
         <c:if test="${requestScope.submitDelete == true}">
             <div class="alert alert-success table-bordered">Successfully deleted</div>
         </c:if>
-        <h1 id="homeTitle">${computerPage.recordCount} Computers found</h1>
+        <h1 id="homeTitle">${computerPage.totalCount} Computers found</h1>
     <div id="actions" class="form-horizontal">
 		<div class="pull-left">
             <form id="searchForm" action="" method="GET">
@@ -41,12 +42,12 @@
                     <!-- Table header for Computer Name -->
 
                     <th class="editMode" style="width:60px; height: 22px;"><input type="checkbox" id="selectall" style="margin-top: 5px;"/> <span style="vertical-align: top;"> - <a href="#" id="deleteSelected" onclick="$.fn.deleteSelected();"><i class="fa fa-trash-o fa-lg"></i></a></span></th>
-                    <th>Computer Name</th>
-                    <th>Introduced Date</th>
+                    <th style="width:34%;">Computer Name</th>
+                    <th style="width:20%;">Introduced Date</th>
                     <!-- Table header for Discontinued Date -->
-                    <th>Discontinued Date</th>
+                    <th style="width:20%;">Discontinued Date</th>
                     <!-- Table header for Company -->
-                    <th>Company</th>
+                    <th style="width:20%;">Company</th>
 
             </tr>
             </thead>
@@ -65,6 +66,9 @@
                 </c:forEach>
             </tbody>
         </table>
+        <div class="text-center">
+            <fn:computerPage totalCount="${computerPage.totalCount}" recordCount="${computerPage.recordCount}" pageCount="${computerPage.pageCount}" currentPage="${computerPage.currentPage}" limit="${computerPage.limit}" action="dashboard?"></fn:computerPage>
+        </div>
     </div>
 </section>
 

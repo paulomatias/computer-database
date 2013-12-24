@@ -14,8 +14,8 @@
 <script src="js/jquery.min.js"></script>
 <script src="js/bootstrap.min.js"></script>
 <body>
-	<header class="navbar navbar-inverse">
-		<h1>
+	<header class="navbar navbar-inverse navbar-static-top">
+        <h1>
 			<a href="dashboard"> Application - Computer Database </a>
 		</h1>
 	</header>

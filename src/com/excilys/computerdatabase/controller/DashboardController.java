@@ -26,6 +26,8 @@ import java.io.IOException;
 public class DashboardController extends HttpServlet {
 
 
+    public static final int ITEMS_PER_PAGE = 20;
+
     private static final String ATTR_SUBMIT_ADD = "submitAdd";
     private static final String ATTR_SUBMIT_EDIT = "submitEdit";
     private static final String ATTR_SUBMIT_DELETE = "submitDelete";
@@ -44,6 +46,8 @@ public class DashboardController extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         logger.debug("Entering doGet");
 
+        int currentPage = 1;
+
         if(req.getParameter("submitAdd") != null && "true".equals(req.getParameter("submitAdd")))
             req.setAttribute(ATTR_SUBMIT_ADD,true);
         if(req.getParameter("submitEdit") != null && "true".equals(req.getParameter("submitEdit")))
@@ -51,7 +55,13 @@ public class DashboardController extends HttpServlet {
         if(req.getParameter("submitDelete") != null && "true".equals(req.getParameter("submitDelete")))
             req.setAttribute(ATTR_SUBMIT_DELETE,true);
 
-        req.setAttribute(ATTR_COMPUTER_PAGE,computerService.retrieveAll());
+        if(req.getParameter("page") != null) {
+            int tmpPage = Integer.parseInt(req.getParameter("page"));
+            if(tmpPage >= 1)
+                currentPage = tmpPage;
+        }
+
+        req.setAttribute(ATTR_COMPUTER_PAGE,computerService.retrievePage((currentPage-1)*ITEMS_PER_PAGE,ITEMS_PER_PAGE));
 
         RequestDispatcher dispatcher = req.getRequestDispatcher("WEB-INF/dashboard.jsp");
 

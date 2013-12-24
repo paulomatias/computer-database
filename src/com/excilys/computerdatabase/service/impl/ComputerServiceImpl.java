@@ -30,6 +30,11 @@ public class ComputerServiceImpl implements ComputerService {
     }
 
     @Override
+    public Page<Computer> retrievePage(int offset, int limit) {
+        return computerDao.retrievePage(offset,limit);
+    }
+
+    @Override
     public Computer retrieve(Long computerId) {
         return computerDao.retrieve(computerId);
     }

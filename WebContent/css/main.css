@@ -16,17 +16,11 @@ header h1 {
     font-size: 24px;
 }
 
-section#main {
-    position: relative;
+section #main {
+    margin-top: -200px;
     padding: 5em 2em;
     border-bottom: 1px solid #ccc;
-    min-height: 600px;
-} 
-
-section#main .topRight {
-    position: absolute;
-    right: 20px;
-    top: 70px;
+    min-height: 400px;
 }
 
 table.computers em {
@@ -57,15 +51,20 @@ table.computers .header a {
 }
 
 #pagination {
-    position: relative;
+
 }
 
-#pagination ul {
-    position: absolute;
-    right: 0;
+#pagination li {
+    margin: 2px;
+    padding: 10px;
+    background-color: #f0f0f0;
+    border-radius: 5px;
+    border: 1px solid #bbb;
+    display: inline-block;
+    text-align: center;
 }
 
-#pagination ul .current a {
+#pagination .current a {
     color: #666;
 }
 
