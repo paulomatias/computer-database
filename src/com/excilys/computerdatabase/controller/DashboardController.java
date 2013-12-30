@@ -1,5 +1,7 @@
 package com.excilys.computerdatabase.controller;
 
+import com.excilys.computerdatabase.common.Page;
+import com.excilys.computerdatabase.domain.Computer;
 import com.excilys.computerdatabase.persistence.ComputerDao;
 import com.excilys.computerdatabase.persistence.factory.DaoFactory;
 import com.excilys.computerdatabase.service.ComputerService;
@@ -33,6 +35,15 @@ public class DashboardController extends HttpServlet {
     private static final String ATTR_SUBMIT_DELETE = "submitDelete";
     private static final String ATTR_COMPUTER_PAGE = "computerPage";
 
+    private static final String PARAM_SUBMIT_ADD = "submitAdd";
+    private static final String PARAM_SUBMIT_EDIT = "submitEdit";
+    private static final String PARAM_SUBMIT_DELETE = "submitDelete";
+
+    private static final String PARAM_PAGE = "page";
+    private static final String PARAM_SEARCH = "search";
+    private static final String PARAM_SORT = "sort";
+
+
     private static Logger logger = LoggerFactory.getLogger(DashboardController.class);
 
     private ComputerService computerService;
@@ -46,22 +57,32 @@ public class DashboardController extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         logger.debug("Entering doGet");
 
+        //Default values
         int currentPage = 1;
+        String searchString = null;
+        int sort = 0;
 
-        if(req.getParameter("submitAdd") != null && "true".equals(req.getParameter("submitAdd")))
+        //Parameters handle
+        if(req.getParameter(PARAM_SUBMIT_ADD) != null && "true".equals(req.getParameter(PARAM_SUBMIT_ADD)))
             req.setAttribute(ATTR_SUBMIT_ADD,true);
-        if(req.getParameter("submitEdit") != null && "true".equals(req.getParameter("submitEdit")))
+        if(req.getParameter(PARAM_SUBMIT_EDIT) != null && "true".equals(req.getParameter(PARAM_SUBMIT_EDIT)))
             req.setAttribute(ATTR_SUBMIT_EDIT,true);
-        if(req.getParameter("submitDelete") != null && "true".equals(req.getParameter("submitDelete")))
+        if(req.getParameter(PARAM_SUBMIT_DELETE) != null && "true".equals(req.getParameter(PARAM_SUBMIT_DELETE)))
             req.setAttribute(ATTR_SUBMIT_DELETE,true);
-
-        if(req.getParameter("page") != null) {
-            int tmpPage = Integer.parseInt(req.getParameter("page"));
+        if(req.getParameter(PARAM_PAGE) != null) {
+            int tmpPage = Integer.parseInt(req.getParameter(PARAM_PAGE));
             if(tmpPage >= 1)
                 currentPage = tmpPage;
         }
+        if(req.getParameter(PARAM_SEARCH) != null && !req.getParameter(PARAM_SEARCH).trim().isEmpty())
+            searchString = req.getParameter(PARAM_SEARCH).trim();
+        if(req.getParameter(PARAM_SORT) != null && !req.getParameter(PARAM_SORT).trim().isEmpty() && !req.getParameter(PARAM_SORT).equals("0"))
+            sort = Integer.parseInt(req.getParameter(PARAM_SORT));
 
-        req.setAttribute(ATTR_COMPUTER_PAGE,computerService.retrievePage((currentPage-1)*ITEMS_PER_PAGE,ITEMS_PER_PAGE));
+        //Retrieve page
+        Page<Computer> computerPage = computerService.retrievePage((currentPage-1)*ITEMS_PER_PAGE,ITEMS_PER_PAGE,searchString,sort);
+
+        req.setAttribute(ATTR_COMPUTER_PAGE,computerPage);
 
         RequestDispatcher dispatcher = req.getRequestDispatcher("WEB-INF/dashboard.jsp");
 

@@ -26,6 +26,16 @@ public class ComputerDaoImpl implements ComputerDao {
     private static Logger logger = LoggerFactory.getLogger(ComputerDaoImpl.class);
     private static DateFormat dateFormat = new SimpleDateFormat();
 
+    private static final String COMPUTER_ASC = "computer.name ASC ";
+    private static final String INTRODUCED_ASC = "CASE WHEN (computer.introduced IS NULL OR computer.introduced = '0000-00-00 00:00:00') THEN 1 ELSE 0 END ASC, computer.introduced ASC ";
+    private static final String DISCONTINUED_ASC = "CASE WHEN (computer.discontinued IS NULL OR computer.discontinued = '0000-00-00 00:00:00') THEN 1 ELSE 0 END ASC, computer.discontinued ASC ";
+    private static final String COMPANY_ASC = "CASE WHEN company.name IS NULL THEN 1 ELSE 0 END ASC, company.name ASC ";
+    private static final String COMPUTER_DESC = "computer.name DESC ";
+    private static final String INTRODUCED_DESC = "CASE WHEN (computer.introduced IS NULL OR computer.introduced = '0000-00-00 00:00:00') THEN 1 ELSE 0 END ASC, computer.introduced DESC ";
+    private static final String DISCONTINUED_DESC = "CASE WHEN (computer.discontinued IS NULL OR computer.discontinued = '0000-00-00 00:00:00') THEN 1 ELSE 0 END ASC, computer.discontinued DESC ";
+    private static final String COMPANY_DESC = "CASE WHEN company.name IS NULL THEN 1 ELSE 0 END ASC, company.name DESC ";
+
+
     @Override
     public void create(Computer computer) {
         logger.debug("Entering create with object " + computer);
@@ -76,11 +86,11 @@ public class ComputerDaoImpl implements ComputerDao {
     @Override
     public Page<Computer> retrieveAll() {
         logger.debug("Entering retrieveAll");
-        return retrievePage(0,0);
+        return retrievePage(0,0,null,0);
     }
 
     @Override
-    public Page<Computer> retrievePage(int offset, int limit) {
+    public Page<Computer> retrievePage(int offset, int limit, String searchString, int sort) {
         logger.debug("Entering retrievePage");
 
         List<Computer> computers = new ArrayList<Computer>();
@@ -89,6 +99,14 @@ public class ComputerDaoImpl implements ComputerDao {
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
+	
+	Page<Computer> computerPage = new Page<Computer>();
+
+        computerPage.setSearchString(searchString);
+        computerPage.setSort(sort);
+
+        if(searchString != null)
+            searchString = new StringBuilder().append("%").append(searchString).append("%").toString();
 
         try {
             // Get a connection from the DaoManager
@@ -100,16 +118,56 @@ public class ComputerDaoImpl implements ComputerDao {
 
             StringBuilder sql = new StringBuilder();
 
-            String sql2 = "SELECT count(*) AS count FROM computer";
+            StringBuilder sql2 = new StringBuilder("SELECT count(*) AS count FROM computer LEFT JOIN company ON computer.company_id = company.id ");
+            if(searchString != null)
+                sql2.append("WHERE computer.name LIKE ? OR company.name LIKE ? ");
 
             sql.append("SELECT computer.id, computer.name, introduced, discontinued, company.id, company.name FROM computer LEFT JOIN company ON computer.company_id = company.id ");
+            if(searchString != null)
+                sql.append("WHERE computer.name LIKE ? OR company.name LIKE ? ");
+
+            sql.append("ORDER BY ");
+
+
+
+            //Sort computer
+            switch(sort) {
+                case 0:
+                    sql.append(COMPUTER_ASC).append(", ").append(INTRODUCED_ASC).append(", ").append(DISCONTINUED_ASC).append(", ").append(COMPANY_ASC);
+                    break;
+                case 1:
+                    sql.append(COMPUTER_DESC).append(", ").append(INTRODUCED_ASC).append(", ").append(DISCONTINUED_ASC).append(", ").append(COMPANY_ASC);
+                    break;
+                case 2:
+                    sql.append(INTRODUCED_ASC).append(", ").append(COMPUTER_ASC).append(", ").append(DISCONTINUED_ASC).append(", ").append(COMPANY_ASC);
+                    break;
+                case 3:
+                    sql.append(INTRODUCED_DESC).append(", ").append(COMPUTER_ASC).append(", ").append(DISCONTINUED_ASC).append(", ").append(COMPANY_ASC);
+                    break;
+                case 4:
+                    sql.append(DISCONTINUED_ASC).append(", ").append(COMPUTER_ASC).append(", ").append(INTRODUCED_ASC).append(", ").append(COMPANY_ASC);
+                    break;
+                case 5:
+                    sql.append(DISCONTINUED_DESC).append(", ").append(COMPUTER_ASC).append(", ").append(INTRODUCED_ASC).append(", ").append(COMPANY_ASC);
+                    break;
+                case 6:
+                    sql.append(COMPANY_ASC).append(", ").append(COMPUTER_ASC).append(", ").append(INTRODUCED_ASC).append(", ").append(DISCONTINUED_ASC);
+                    break;
+                case 7:
+                    sql.append(COMPANY_DESC).append(", ").append(COMPUTER_ASC).append(", ").append(INTRODUCED_ASC).append(", ").append(DISCONTINUED_ASC);
+                    break;
+            }
+
             if(limit > 0)
                 sql.append("LIMIT ").append(limit).append(" ");
             if(offset > 0)
                 sql.append("OFFSET ").append(offset);
 
             stmt = conn.prepareStatement(sql.toString());
-
+            if(searchString != null) {
+                stmt.setString(1,searchString);
+                stmt.setString(2,searchString);
+            }
             rs = stmt.executeQuery();
             // Extract data from result set
             while (rs.next()) {
@@ -128,8 +186,12 @@ public class ComputerDaoImpl implements ComputerDao {
             rs.close();
             stmt.close();
 
+            stmt = conn.prepareStatement(sql2.toString());
+            if(searchString != null) {
+                stmt.setString(1,searchString);
+                stmt.setString(2,searchString);
+            }
 
-            stmt = conn.prepareStatement(sql2);
             rs = stmt.executeQuery();
 
             rs.first();
@@ -145,15 +207,17 @@ public class ComputerDaoImpl implements ComputerDao {
 
         logger.debug("Found " + computers.size() + " elements");
 
-        Page<Computer> computerPage = new Page<Computer>();
-
+        
         computerPage.setItems(computers);
         computerPage.setRecordCount(count);
 
         if(limit > 0) {
             computerPage.setLimit(limit);
-            computerPage.setCurrentPage((int)Math.floor(offset/limit)+1);
-            computerPage.setPageCount((int)Math.floor(totalCount/limit)+1);
+            computerPage.setCurrentPage((int) Math.floor(offset / limit) + 1);
+            if(totalCount % limit == 0)
+                computerPage.setPageCount((int) Math.floor(totalCount / limit));
+            else
+                computerPage.setPageCount((int) Math.floor(totalCount / limit) + 1);
             computerPage.setTotalCount(totalCount);
         }
 

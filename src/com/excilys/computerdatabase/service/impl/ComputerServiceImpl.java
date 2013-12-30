@@ -30,8 +30,8 @@ public class ComputerServiceImpl implements ComputerService {
     }
 
     @Override
-    public Page<Computer> retrievePage(int offset, int limit) {
-        return computerDao.retrievePage(offset,limit);
+    public Page<Computer> retrievePage(int offset, int limit, String searchString,int sort) {
+        return computerDao.retrievePage(offset,limit,searchString,sort);
     }
 
     @Override

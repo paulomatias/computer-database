@@ -67,7 +67,6 @@ $(function(){
 
 
 //Event handling
-
 //Onkeydown
 $(document).keydown(function(e) {
 
@@ -77,12 +76,12 @@ $(document).keydown(function(e) {
             if($(".editMode").is(":visible") && $(".cb:checked").length != 0)
                 $.fn.deleteSelected();
             break;
-        //E key
+        //E key (CTRL+E will switch to edit mode)
         case 69:
-            $.fn.toggleEditMode();
+            if(e.ctrlKey)
+                $.fn.toggleEditMode();
+
             break;
     }
 });
-
-
 

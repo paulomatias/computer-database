@@ -17,6 +17,9 @@ public class Page<E> {
     private int pageCount;
     private int currentPage;
     private int limit;
+    private int sort;
+
+    private String searchString;
 
     public List<E> getItems() {
         return items;
@@ -66,4 +69,19 @@ public class Page<E> {
         this.totalCount = totalCount;
     }
 
+    public String getSearchString() {
+        return searchString;
+    }
+
+    public void setSearchString(String searchString) {
+        this.searchString = searchString;
+    }
+
+    public int getSort() {
+        return sort;
+    }
+
+    public void setSort(int sort) {
+        this.sort = sort;
+    }
 }

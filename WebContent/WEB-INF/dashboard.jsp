@@ -19,7 +19,7 @@
     <div id="actions" class="form-horizontal">
 		<div class="pull-left">
             <form id="searchForm" action="" method="GET">
-                <input type="search" id="searchbox" name="search" value="" class="input-append" placeholder="Search name" />
+                <input type="search" id="searchbox" name="search" value="${computerPage.searchString}" class="input-append" placeholder="Search name" />
                 <input type="submit" id="searchsubmit" value="Filter by name" class="btn btn-primary" />
             </form>
         </div>
@@ -42,17 +42,33 @@
                     <!-- Table header for Computer Name -->
 
                     <th class="editMode" style="width:60px; height: 22px;"><input type="checkbox" id="selectall" style="margin-top: 5px;"/> <span style="vertical-align: top;"> - <a href="#" id="deleteSelected" onclick="$.fn.deleteSelected();"><i class="fa fa-trash-o fa-lg"></i></a></span></th>
-                    <th style="width:34%;">Computer Name</th>
-                    <th style="width:20%;">Introduced Date</th>
+                    <th style="width:33%;">
+                        <fn:link page="${computerPage.currentPage}" searchString="${computerPage.searchString}" action="dashboard" sort="${computerPage.sort == 1 ? 0 : 1}">
+                            Computer Name
+                        </fn:link>
+                    </th>
+                    <th style="width:15%;">
+                        <fn:link page="${computerPage.currentPage}" searchString="${computerPage.searchString}" action="dashboard" sort="${computerPage.sort == 2 ? 3 : 2}">
+                        Introduced Date
+                        </fn:link>
+                    </th>
                     <!-- Table header for Discontinued Date -->
-                    <th style="width:20%;">Discontinued Date</th>
+                    <th style="width:15%;">
+                        <fn:link page="${computerPage.currentPage}" searchString="${computerPage.searchString}" action="dashboard" sort="${computerPage.sort == 4 ? 5 : 4}">
+                            Discontinued Date
+                        </fn:link>
+                    </th>
                     <!-- Table header for Company -->
-                    <th style="width:20%;">Company</th>
+                    <th style="width:30%;">
+                        <fn:link page="${computerPage.currentPage}" searchString="${computerPage.searchString}" action="dashboard" sort="${computerPage.sort == 6 ? 7 : 6}">
+                            Company
+                        </fn:link>
+                    </th>
 
             </tr>
             </thead>
             <!-- Browse attribute computers -->
-            <tbody>
+            <tbody id="results">
                 <c:forEach var="comp" items="${computerPage.items}" >
                     <tr>
                         <td class="editMode"><input type="checkbox" name="cb" class="cb" value="${comp.id}"></td>
@@ -67,7 +83,7 @@
             </tbody>
         </table>
         <div class="text-center">
-            <fn:computerPage totalCount="${computerPage.totalCount}" recordCount="${computerPage.recordCount}" pageCount="${computerPage.pageCount}" currentPage="${computerPage.currentPage}" limit="${computerPage.limit}" action="dashboard?"></fn:computerPage>
+            <fn:computerPagination totalCount="${computerPage.totalCount}" recordCount="${computerPage.recordCount}" pageCount="${computerPage.pageCount}" currentPage="${computerPage.currentPage}" limit="${computerPage.limit}" searchString="${computerPage.searchString}" sort="${computerPage.sort}" action="dashboard"></fn:computerPagination>
         </div>
     </div>
 </section>
