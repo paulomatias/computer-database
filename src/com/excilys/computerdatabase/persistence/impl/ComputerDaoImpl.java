@@ -80,7 +80,6 @@ public class ComputerDaoImpl implements ComputerDao {
         }
 
         logger.debug("leaving create");
-
     }
 
     @Override
@@ -91,7 +90,7 @@ public class ComputerDaoImpl implements ComputerDao {
 
     @Override
     public Page<Computer> retrievePage(int offset, int limit, String searchString, int sort) {
-        logger.debug("Entering retrievePage");
+        logger.debug(new StringBuilder("Entering retrievePage with offset ").append(offset).append(" limit ").append(limit).append(" searchString ").append(searchString).append(" sort ").append(sort).toString());
 
         List<Computer> computers = new ArrayList<Computer>();
         int count = 0;
@@ -221,11 +220,13 @@ public class ComputerDaoImpl implements ComputerDao {
             computerPage.setTotalCount(totalCount);
         }
 
+        logger.debug("Leaving retrievePage");
         return computerPage;
     }
 
     @Override
     public Computer retrieve(Long computerId) {
+        logger.debug("Entering retrieve");
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
@@ -264,11 +265,15 @@ public class ComputerDaoImpl implements ComputerDao {
         } finally {
             closeObjects(conn,stmt,rs);
         }
+
+        logger.debug("Leaving retrieve");
         return computer;
     }
 
     @Override
     public boolean update(Computer computer) {
+        logger.debug("Entering update");
+
         boolean result = false;
         Connection conn = null;
         PreparedStatement stmt = null;
@@ -312,11 +317,14 @@ public class ComputerDaoImpl implements ComputerDao {
         if(!result)
             logger.warn("Computer update failed");
 
+        logger.debug("Leaving update");
         return result;
     }
 
     @Override
     public boolean delete(List<Long> computerIds) {
+        logger.debug("Entering delete");
+
         boolean result = false;
         Connection conn = null;
         PreparedStatement stmt = null;
@@ -368,7 +376,7 @@ public class ComputerDaoImpl implements ComputerDao {
 
         if(!result)
             logger.warn("Computer deletion failed");
-
+        logger.debug("Leaving delete");
         return result;
     }
 

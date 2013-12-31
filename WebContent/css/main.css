@@ -72,16 +72,6 @@ table.computers .header a {
     display: inline-block;
 }
 
-.col2 {
-	width: 50%;
-}
-.col3, .col4 {
-	width: 5%;
-}
-.col5 {
-	width: 40%;
-}
-
 .table-curved {
     border-collapse: separate;
     border-radius: 6px;

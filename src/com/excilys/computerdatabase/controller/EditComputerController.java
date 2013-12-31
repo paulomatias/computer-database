@@ -53,8 +53,6 @@ public class EditComputerController extends HttpServlet {
     private CompanyService companyService;
     private ComputerService computerService;
 
-
-
     /*
      * Constructurs
      */

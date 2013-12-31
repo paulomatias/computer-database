@@ -23,7 +23,7 @@ public class CompanyDaoImpl implements CompanyDao {
 
     @Override
     public List<Company> retrieveAll() {
-
+        logger.debug("Entering retrieveAll");
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
@@ -56,14 +56,15 @@ public class CompanyDaoImpl implements CompanyDao {
             closeObjects(conn,stmt,rs);
         }
 
-        logger.debug("Found " + companies.size() + " elements");
+        logger.debug(new StringBuilder("Found ").append(companies.size()).append(" elements").toString());
+        logger.debug("Leaving retrieveAll");
 
         return companies;
     }
 
     @Override
     public Company retrieve(Long companyId) {
-
+        logger.debug("Entering retrieve");
         Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
@@ -96,6 +97,7 @@ public class CompanyDaoImpl implements CompanyDao {
         } finally {
             closeObjects(conn,stmt,rs);
         }
+        logger.debug("Leaving retrieve");
         return company;
     }
 

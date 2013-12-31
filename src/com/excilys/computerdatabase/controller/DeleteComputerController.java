@@ -47,7 +47,7 @@ public class DeleteComputerController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         logger.debug("Entering doGet");
-
+        logger.warn("Not supposed to be in doGet!");
         logger.debug("Leaving doGet");
     }
 
@@ -55,7 +55,6 @@ public class DeleteComputerController extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         logger.debug("Entering doPost");
 
-        int errorBits = 0;
         RequestDispatcher dispatcher = req.getRequestDispatcher("WEB-INF/editComputer.jsp");
 
         String[] selection = null;
@@ -69,6 +68,7 @@ public class DeleteComputerController extends HttpServlet {
                 computerIds.add(Long.parseLong(id));
         }
 
+        //If delete successful, sending result to dashboard
         if(computerService.delete(computerIds))
             resp.sendRedirect("dashboard?submitDelete=true");
         else

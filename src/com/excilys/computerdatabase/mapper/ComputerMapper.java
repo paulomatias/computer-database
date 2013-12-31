@@ -26,7 +26,7 @@ public class ComputerMapper {
     private static final CompanyService companyService = ServiceFactory.INSTANCE.getCompanyService();
 
     public static Computer fromDto(ComputerDto dto) {
-
+        logger.debug("Entering fromDto");
         if(dto == null)
             return null;
 
@@ -51,12 +51,12 @@ public class ComputerMapper {
                 logger.warn("Cannot map object from DTO: " + e.getMessage());
             }
 
-            logger.debug("object built:" + cb.build());
+        logger.debug("leaving fromDto with object built:" + cb.build());
         return cb.build();
     }
 
     public static ComputerDto toDto(Computer obj) {
-
+        logger.debug("Entering toDto");
         if(obj == null)
             return null;
 
@@ -73,6 +73,7 @@ public class ComputerMapper {
         if(obj.getCompany() != null)
             cdtob.companyId(obj.getCompany().getId());
 
+        logger.debug("Leaving toDto with object built:" + cdtob.build());
         return cdtob.build();
 
     }

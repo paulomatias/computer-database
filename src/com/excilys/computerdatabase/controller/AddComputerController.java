@@ -51,8 +51,6 @@ public class AddComputerController extends HttpServlet {
     private CompanyService companyService;
     private ComputerService computerService;
 
-
-
     /*
      * Constructurs
      */
