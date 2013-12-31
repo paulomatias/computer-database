@@ -21,19 +21,17 @@ public class CompanyDaoImpl implements CompanyDao {
 
     private static Logger logger = LoggerFactory.getLogger(CompanyDaoImpl.class);
 
+ 
     @Override
     public List<Company> retrieveAll() {
         logger.debug("Entering retrieveAll");
-        Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
         List<Company> companies = new ArrayList<Company>();
 
-        try {
-            // Get a connection from the DaoManager
-            logger.debug("Connecting to database...");
-            conn = DaoFactory.INSTANCE.getConn();
+        Connection conn = DaoFactory.INSTANCE.getConn();
 
+        try {
             // Execute query
             logger.debug("Creating statement...");
 
@@ -52,6 +50,7 @@ public class CompanyDaoImpl implements CompanyDao {
 
         } catch (SQLException se) {
             logger.warn("Error in SQL query:" + se.getMessage());
+            DaoFactory.INSTANCE.notifyTransactionError();
         } finally {
             closeObjects(conn,stmt,rs);
         }
@@ -65,16 +64,14 @@ public class CompanyDaoImpl implements CompanyDao {
     @Override
     public Company retrieve(Long companyId) {
         logger.debug("Entering retrieve");
-        Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
         Company company = null;
-        try {
-            //Get a connection from the DaoManager
-            logger.debug("Connecting to database...");
-            conn = DaoFactory.INSTANCE.getConn();
 
-            //Execute query
+        Connection conn = DaoFactory.INSTANCE.getConn();
+
+        try {
+            // Execute query
             logger.debug("Creating statement...");
 
             String sql = "SELECT id, name FROM company WHERE id=?";
@@ -85,7 +82,7 @@ public class CompanyDaoImpl implements CompanyDao {
 
             rs = stmt.executeQuery();
 
-            //Extract data from result set
+            // Extract data from result set
             while(rs.next()) {
                 //Create company result
                 company = new Company(rs.getLong("id"),rs.getString("name"));
@@ -94,6 +91,7 @@ public class CompanyDaoImpl implements CompanyDao {
 
         } catch (SQLException se) {
             logger.warn("Error in SQL query:" + se.getMessage());
+            DaoFactory.INSTANCE.notifyTransactionError();
         } finally {
             closeObjects(conn,stmt,rs);
         }
@@ -107,8 +105,8 @@ public class CompanyDaoImpl implements CompanyDao {
 
     private void closeObjects(Connection conn, Statement stmt, ResultSet rs) {
         try {
-            if (conn != null)
-                conn.close();
+            if(conn != null && conn.getAutoCommit())
+                DaoFactory.INSTANCE.closeConn();
             if (stmt != null)
                 stmt.close();
             if (rs != null)

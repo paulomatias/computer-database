@@ -37,23 +37,21 @@ public class ComputerDaoImpl implements ComputerDao {
 
 
     @Override
-    public void create(Computer computer) {
+    public Computer create(Computer computer) {
         logger.debug("Entering create with object " + computer);
         String sql = null;
-        Connection conn = null;
         PreparedStatement stmt = null;
+        ResultSet rs = null;
+
+        Connection conn = DaoFactory.INSTANCE.getConn();
 
         try {
-            // Get a connection from the DaoManager
-            logger.debug("Connecting to database...");
-
-            conn = DaoFactory.INSTANCE.getConn();
 
             // Execute query
             logger.debug("Creating statement...");
 
             sql = "INSERT INTO computer(name, introduced, discontinued, company_id) VALUES(?,?,?,?);";
-            stmt = conn.prepareStatement(sql);
+            stmt = conn.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS);
 
             stmt.setString(1, computer.getName());
             if(computer.getIntroduced() != null) {
@@ -72,14 +70,20 @@ public class ComputerDaoImpl implements ComputerDao {
                 stmt.setNull(4,Types.BIGINT);
 
             stmt.executeUpdate();
+            rs = stmt.getGeneratedKeys();
+            rs.first();
+            computer.setId(rs.getLong(1));
+            rs.close();
 
         } catch (SQLException se) {
             logger.warn("Error in SQL query:" + se.getMessage());
+            DaoFactory.INSTANCE.notifyTransactionError();
         } finally {
-            closeObjects(conn,stmt);
+            closeObjects(conn,stmt,rs);
         }
 
         logger.debug("leaving create");
+        return computer;
     }
 
     @Override
@@ -92,10 +96,11 @@ public class ComputerDaoImpl implements ComputerDao {
     public Page<Computer> retrievePage(int offset, int limit, String searchString, int sort) {
         logger.debug(new StringBuilder("Entering retrievePage with offset ").append(offset).append(" limit ").append(limit).append(" searchString ").append(searchString).append(" sort ").append(sort).toString());
 
+        Connection conn = DaoFactory.INSTANCE.getConn();
+
         List<Computer> computers = new ArrayList<Computer>();
         int count = 0;
         int totalCount = 0;
-        Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
 	
@@ -108,10 +113,6 @@ public class ComputerDaoImpl implements ComputerDao {
             searchString = new StringBuilder().append("%").append(searchString).append("%").toString();
 
         try {
-            // Get a connection from the DaoManager
-            logger.debug("Connecting to database...");
-            conn = DaoFactory.INSTANCE.getConn();
-
             // Execute query
             logger.debug("Creating statement...");
 
@@ -126,7 +127,6 @@ public class ComputerDaoImpl implements ComputerDao {
                 sql.append("WHERE computer.name LIKE ? OR company.name LIKE ? ");
 
             sql.append("ORDER BY ");
-
 
 
             //Sort computer
@@ -200,6 +200,7 @@ public class ComputerDaoImpl implements ComputerDao {
 
         } catch (SQLException se) {
             logger.warn("Error in SQL query:" + se.getMessage());
+            DaoFactory.INSTANCE.notifyTransactionError();
         } finally {
             closeObjects(conn,stmt,rs);
         }
@@ -227,15 +228,14 @@ public class ComputerDaoImpl implements ComputerDao {
     @Override
     public Computer retrieve(Long computerId) {
         logger.debug("Entering retrieve");
-        Connection conn = null;
+
         PreparedStatement stmt = null;
         ResultSet rs = null;
         Computer computer = null;
-        try {
-            // Get a connection from the DaoManager
-            logger.debug("Connecting to database...");
-            conn = DaoFactory.INSTANCE.getConn();
 
+        Connection conn = DaoFactory.INSTANCE.getConn();
+
+        try {
             // Execute query
             logger.debug("Creating statement...");
 
@@ -262,6 +262,7 @@ public class ComputerDaoImpl implements ComputerDao {
 
         } catch (SQLException se) {
             logger.warn("Error in SQL query:" + se.getMessage());
+            DaoFactory.INSTANCE.notifyTransactionError();
         } finally {
             closeObjects(conn,stmt,rs);
         }
@@ -275,14 +276,11 @@ public class ComputerDaoImpl implements ComputerDao {
         logger.debug("Entering update");
 
         boolean result = false;
-        Connection conn = null;
         PreparedStatement stmt = null;
 
-        try {
-            // Get a connection from the DaoManager
-            logger.debug("Connecting to database...");
-            conn = DaoFactory.INSTANCE.getConn();
+        Connection conn = DaoFactory.INSTANCE.getConn();
 
+        try {
             // Execute query
             logger.debug("Creating statement...");
 
@@ -310,6 +308,7 @@ public class ComputerDaoImpl implements ComputerDao {
 
         } catch (SQLException se) {
             logger.warn("Error in SQL query:" + se.getMessage());
+            DaoFactory.INSTANCE.notifyTransactionError();
         } finally {
             closeObjects(conn,stmt);
         }
@@ -326,9 +325,10 @@ public class ComputerDaoImpl implements ComputerDao {
         logger.debug("Entering delete");
 
         boolean result = false;
-        Connection conn = null;
         PreparedStatement stmt = null;
         String computers = "";
+
+        Connection conn = DaoFactory.INSTANCE.getConn();
 
         if(computerIds == null || computerIds.isEmpty()) {
             logger.debug("Nothing to delete");
@@ -337,10 +337,6 @@ public class ComputerDaoImpl implements ComputerDao {
 
 
         try {
-            // Get a connection from the DaoManager
-            logger.debug("Connecting to database...");
-            conn = DaoFactory.INSTANCE.getConn();
-
             // Execute query
             logger.debug("Creating statement...");
 
@@ -370,6 +366,7 @@ public class ComputerDaoImpl implements ComputerDao {
 
         } catch (SQLException se) {
             logger.warn("Error in SQL query:" + se.getMessage());
+            DaoFactory.INSTANCE.notifyTransactionError();
         } finally {
             closeObjects(conn,stmt);
         }
@@ -386,8 +383,8 @@ public class ComputerDaoImpl implements ComputerDao {
 
     private void closeObjects(Connection conn, Statement stmt, ResultSet rs) {
         try {
-            if (conn != null)
-                conn.close();
+            if(conn != null && conn.getAutoCommit())
+                DaoFactory.INSTANCE.closeConn();
             if (stmt != null)
                 stmt.close();
             if (rs != null)

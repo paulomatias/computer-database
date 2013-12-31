@@ -1,6 +1,7 @@
 package com.excilys.computerdatabase.persistence;
 
 import com.excilys.computerdatabase.domain.Company;
+import com.excilys.computerdatabase.domain.Log;
 
 import java.sql.Connection;
 import java.util.List;
@@ -12,9 +13,8 @@ import java.util.List;
  * Date: 15/11/13
  * Description: N/A
  */
-public interface CompanyDao {
+public interface LogDao {
 
-    public List<Company> retrieveAll();
-	public Company retrieve(Long companyId);
+    public Log create(Log log);
 
 }

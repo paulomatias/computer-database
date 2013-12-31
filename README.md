@@ -6,7 +6,7 @@ Training-computer-database-project
 ##1. Database
 Execute scripts **1-schema.sql** and **2-entries.sql** in your local **MySQL** server.  
 Schema created: **computer-database-db**  
-Tables created: **company, computer**  
+Tables created: **company, computer, log**  
 User created: `admincdb`   
 with password: `qwerty1234`  
 

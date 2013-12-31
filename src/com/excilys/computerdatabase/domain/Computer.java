@@ -29,7 +29,7 @@ public class Computer {
 
 
     /*
-     * Constructurs
+     * Constructors
      */
 
     public Computer() {}

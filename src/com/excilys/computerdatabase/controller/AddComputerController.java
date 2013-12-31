@@ -3,8 +3,6 @@ package com.excilys.computerdatabase.controller;
 import com.excilys.computerdatabase.domain.Computer;
 import com.excilys.computerdatabase.dto.ComputerDto;
 import com.excilys.computerdatabase.mapper.ComputerMapper;
-import com.excilys.computerdatabase.persistence.ComputerDao;
-import com.excilys.computerdatabase.persistence.factory.DaoFactory;
 import com.excilys.computerdatabase.service.CompanyService;
 import com.excilys.computerdatabase.service.ComputerService;
 import com.excilys.computerdatabase.service.factory.ServiceFactory;
@@ -93,7 +91,10 @@ public class AddComputerController extends HttpServlet {
         if(errorBits == 0) {
             Computer computer = ComputerMapper.fromDto(cdto);
             computerService.create(computer);
-            resp.sendRedirect("dashboard?submitAdd=true");
+            if(computer.getId() == null)
+                resp.sendRedirect("dashboard?submitAdd=false");
+            else
+                resp.sendRedirect("dashboard?submitAdd=true");
             return;
         }
 
