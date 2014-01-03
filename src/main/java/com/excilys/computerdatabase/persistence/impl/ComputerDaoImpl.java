@@ -6,8 +6,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,7 +31,6 @@ import com.excilys.computerdatabase.persistence.factory.DaoFactory;
 public class ComputerDaoImpl implements ComputerDao {
 
     private static Logger logger = LoggerFactory.getLogger(ComputerDaoImpl.class);
-    private static DateFormat dateFormat = new SimpleDateFormat();
 
     private static final String COMPUTER_ASC = "computer.name ASC ";
     private static final String INTRODUCED_ASC = "CASE WHEN (computer.introduced IS NULL OR computer.introduced = '0000-00-00 00:00:00') THEN 1 ELSE 0 END ASC, computer.introduced ASC ";

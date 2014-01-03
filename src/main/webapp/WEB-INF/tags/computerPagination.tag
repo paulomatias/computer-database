@@ -1,4 +1,4 @@
-<%@ tag language="java" pageEncoding="UTF-8"%>
+<%@ tag language="java" description="Pager implementation" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib uri="WEB-INF/cdblib" prefix="fn" %>
 <%@ attribute name="totalCount" required="true" type="java.lang.Integer"%>
@@ -11,17 +11,16 @@
 <%@ attribute name="sort" required="true" type="java.lang.Integer"%>
 
 <ul id="pagination">
-
-
     <c:if test="${ currentPage == 1 }">
         <li class="prev disabled"><b>&lt;&lt;</b></li>
         <li class="prev disabled"><b>&larr; Previous</b></li>
     </c:if>
     <c:if test="${ currentPage > 1 }">
         <li class="prev">
-            <fn:link page="${1}" searchString="${searchString}" action="${action}" sort="${sort}">
-                <b>&lt;&lt;</b>
-            </fn:link></li>
+        	<fn:link page="${1}" searchString="${searchString}" action="${action}" sort="${sort}">
+            	<b>&lt;&lt;</b>
+           	</fn:link>
+        </li>
         <li class="prev ">
             <fn:link page="${currentPage-1}" searchString="${searchString}" action="${action}" sort="${sort}">
                 <b>&larr; Previous</b>

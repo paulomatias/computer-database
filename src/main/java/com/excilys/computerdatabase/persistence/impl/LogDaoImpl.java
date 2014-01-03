@@ -1,18 +1,21 @@
 package com.excilys.computerdatabase.persistence.impl;
 
-import com.excilys.computerdatabase.common.LogOperationType;
-import com.excilys.computerdatabase.domain.Computer;
-import com.excilys.computerdatabase.domain.Log;
-import com.excilys.computerdatabase.persistence.LogDao;
-import com.excilys.computerdatabase.persistence.factory.DaoFactory;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Timestamp;
+import java.sql.Types;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import java.sql.*;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import com.excilys.computerdatabase.domain.Log;
+import com.excilys.computerdatabase.persistence.LogDao;
+import com.excilys.computerdatabase.persistence.factory.DaoFactory;
 
 /**
  * Created with IntelliJ IDEA.

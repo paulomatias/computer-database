@@ -1,9 +1,5 @@
 package com.excilys.computerdatabase.dto;
 
-import com.excilys.computerdatabase.domain.Company;
-
-import java.util.Calendar;
-import java.util.Date;
 
 /**
  * Project: computer-database

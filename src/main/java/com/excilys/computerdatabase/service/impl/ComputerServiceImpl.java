@@ -1,5 +1,13 @@
 package com.excilys.computerdatabase.service.impl;
 
+import java.util.Calendar;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.excilys.computerdatabase.common.LogOperationType;
 import com.excilys.computerdatabase.common.Page;
 import com.excilys.computerdatabase.domain.Computer;
@@ -8,13 +16,6 @@ import com.excilys.computerdatabase.persistence.ComputerDao;
 import com.excilys.computerdatabase.persistence.LogDao;
 import com.excilys.computerdatabase.persistence.factory.DaoFactory;
 import com.excilys.computerdatabase.service.ComputerService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.util.Calendar;
-import java.util.List;
 
 /**
  * Project: computer-database

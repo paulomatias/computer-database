@@ -1,19 +1,15 @@
 package com.excilys.computerdatabase.service.impl;
 
-import com.excilys.computerdatabase.common.Page;
-import com.excilys.computerdatabase.domain.Company;
-import com.excilys.computerdatabase.domain.Computer;
-import com.excilys.computerdatabase.persistence.CompanyDao;
-import com.excilys.computerdatabase.persistence.factory.DaoFactory;
-import com.excilys.computerdatabase.service.CompanyService;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.List;
+import com.excilys.computerdatabase.domain.Company;
+import com.excilys.computerdatabase.persistence.CompanyDao;
+import com.excilys.computerdatabase.service.CompanyService;
 
 /**
  * Project: computer-database

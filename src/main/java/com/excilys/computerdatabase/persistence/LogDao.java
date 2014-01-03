@@ -1,10 +1,6 @@
 package com.excilys.computerdatabase.persistence;
 
-import com.excilys.computerdatabase.domain.Company;
 import com.excilys.computerdatabase.domain.Log;
-
-import java.sql.Connection;
-import java.util.List;
 
 /**
  * Project: computer-database

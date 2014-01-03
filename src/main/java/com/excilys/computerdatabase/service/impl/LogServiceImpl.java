@@ -1,20 +1,13 @@
 package com.excilys.computerdatabase.service.impl;
 
-import com.excilys.computerdatabase.common.LogOperationType;
-import com.excilys.computerdatabase.domain.Computer;
-import com.excilys.computerdatabase.domain.Log;
-import com.excilys.computerdatabase.persistence.CompanyDao;
-import com.excilys.computerdatabase.persistence.LogDao;
-import com.excilys.computerdatabase.persistence.factory.DaoFactory;
-import com.excilys.computerdatabase.service.LogService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.Calendar;
+import com.excilys.computerdatabase.domain.Log;
+import com.excilys.computerdatabase.persistence.LogDao;
+import com.excilys.computerdatabase.service.LogService;
 
 /**
  * Created with IntelliJ IDEA.

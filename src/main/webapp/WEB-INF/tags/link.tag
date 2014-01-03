@@ -1,4 +1,4 @@
-<%@ tag language="java" pageEncoding="UTF-8" body-content="scriptless" %>
+<%@ tag language="java" description="Link wrapper" pageEncoding="UTF-8" body-content="scriptless" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ attribute name="page" required="true" type="java.lang.Integer"%>
 <%@ attribute name="searchString" required="true" type="java.lang.String"%>
