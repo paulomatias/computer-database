@@ -1,27 +1,25 @@
 <jsp:include page="../include/header.jsp" />
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
+<%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
 <%@ taglib uri="WEB-INF/cdblib" prefix="fn" %>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <section id="main">
-
-
-
     <div class="container">
         <div class="row">
             <div class="col-xs-8 col-xs-offset-2 box">
-                <h1>Add Computer</h1>
+                <h1><spring:message code="form.computer.add"/></h1>
                 <form:form action="addComputer" commandName="computer" method="POST">
                     <fieldset>
-                        <fn:formElement path="name" label="Computer name" helpInline="Required">
+                        <fn:formElement path="name" label="computer.name" helpInline="form.hint.required">
                             <form:input path="name" value="${requestScope.computer.name}"/>
                         </fn:formElement>
-                        <fn:formElement path="introduced" label="Introduced date" helpInline="DD/MM/YYYY">
+                        <fn:formElement path="introduced" label="computer.introduced" helpInline="form.hint.date">
                             <form:input path="introduced" value="${requestScope.computer.introduced}" pattern="(0?[1-9]|[1-2][0-9]|3[01])/(0?[1-9]|1[012])/(19[6-9][0-9]|20[0-9][0-9])" />
                         </fn:formElement>
-                        <fn:formElement path="discontinued" label="Discontinued date" helpInline="DD/MM/YYYY">
+                        <fn:formElement path="discontinued" label="computer.discontinued" helpInline="form.hint.date">
                             <form:input path="discontinued" value="${requestScope.computer.discontinued}" pattern="(0?[1-9]|[1-2][0-9]|3[01])/(0?[1-9]|1[012])/(19[6-9][0-9]|20[0-9][0-9])" />
                         </fn:formElement>
-                        <fn:formElement path="companyId" label="Company Name" helpInline="">                            
+                        <fn:formElement path="companyId" label="company.name" helpInline="">
                                 <form:select path="companyId">
                                     <option value="0">--</option>
                                     <c:forEach var="company" items="${companies}" >
@@ -38,8 +36,10 @@
                         </fn:formElement>
                     </fieldset>
                     <div class="actions pull-right">
-                        <input type="submit" value="Add" class="btn btn-primary">
-                        or <a href="dashboard" class="btn btn-default">Cancel</a>
+                        <spring:message code="form.add" var="lblAdd"/>
+                        <input type="submit" value="${lblAdd}" class="btn btn-primary">
+                        <spring:message code ="lbl.or" />
+                        <a href="dashboard" class="btn btn-default"><spring:message code="form.cancel"/></a>
                     </div>
                 </form:form>
             </div>

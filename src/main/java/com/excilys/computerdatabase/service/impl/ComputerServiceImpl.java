@@ -46,8 +46,8 @@ public class ComputerServiceImpl implements ComputerService {
 
             result = computerDao.create(computer);
             Log log = Log.builder().operationDate(Calendar.getInstance().getTime())
-                                   .operationType(LogOperationType.COMPUTER_ADD)
-                                   .description("id:"+result.getId()).build();
+                    .operationType(LogOperationType.COMPUTER_ADD)
+                    .description("id:"+result.getId()).build();
 
             logDao.create(log);
 

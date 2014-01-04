@@ -11,6 +11,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.support.RequestContextUtils;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 /**
  * Project: computer-database
@@ -30,6 +34,7 @@ public class DashboardController {
     private static final String ATTR_SUBMIT_EDIT = "submitEdit";
     private static final String ATTR_SUBMIT_DELETE = "submitDelete";
     private static final String ATTR_COMPUTER_PAGE = "computerPage";
+    private static final String ATTR_LOCALE = "locale";
 
     private static final String PARAM_SUBMIT_ADD = "submitAdd";
     private static final String PARAM_SUBMIT_EDIT = "submitEdit";
@@ -55,7 +60,9 @@ public class DashboardController {
                            @RequestParam(value = PARAM_SUBMIT_DELETE, required = false) Boolean pSubmitDelete,
                            @RequestParam(value = PARAM_PAGE, required = false, defaultValue = "1") Integer pPage,
                            @RequestParam(value = PARAM_SEARCH, required = false, defaultValue = "") String pSearch,
-                           @RequestParam(value = PARAM_SORT, required = false, defaultValue = "0") Integer pSort) {
+                           @RequestParam(value = PARAM_SORT, required = false, defaultValue = "0") Integer pSort,
+                           HttpServletRequest request,
+                           HttpSession session) {
 
         logger.debug("Entering doGet");
 
@@ -83,6 +90,7 @@ public class DashboardController {
         Page<Computer> computerPage = computerService.retrievePage((page-1)*ITEMS_PER_PAGE,ITEMS_PER_PAGE,search,sort);
 
         model.addAttribute(ATTR_COMPUTER_PAGE, computerPage);
+        session.setAttribute(ATTR_LOCALE, RequestContextUtils.getLocale(request));
 
         logger.debug("Leaving doGet");
         return "dashboard";
