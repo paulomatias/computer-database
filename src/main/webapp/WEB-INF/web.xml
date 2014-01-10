@@ -5,6 +5,24 @@
     <welcome-file>dashboard</welcome-file>
   </welcome-file-list>
 
+    <error-page>
+        <exception-type>java.lang.Exception</exception-type>
+        <location>/error/exception</location>
+    </error-page>
+    <error-page>
+        <error-code>403</error-code>
+        <location>/error/403</location>
+    </error-page>
+    <error-page>
+        <error-code>404</error-code>
+        <location>/error/404</location>
+    </error-page>
+    <error-page>
+        <error-code>500</error-code>
+        <location>/error/500</location>
+    </error-page>
+
+
     <listener>
         <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
     </listener>
