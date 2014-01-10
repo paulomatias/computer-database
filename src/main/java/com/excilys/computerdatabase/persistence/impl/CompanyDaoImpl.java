@@ -2,10 +2,14 @@ package com.excilys.computerdatabase.persistence.impl;
 
 import com.excilys.computerdatabase.domain.Company;
 import com.excilys.computerdatabase.persistence.CompanyDao;
-import com.excilys.computerdatabase.persistence.factory.DaoFactory;
+import com.jolbox.bonecp.BoneCPDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.CleanupFailureDataAccessException;
+import org.springframework.dao.DataAccessResourceFailureException;
+import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.stereotype.Repository;
 
 import java.sql.*;
@@ -25,7 +29,8 @@ public class CompanyDaoImpl implements CompanyDao {
     private static Logger logger = LoggerFactory.getLogger(CompanyDaoImpl.class);
 
     @Autowired
-    DaoFactory df;
+    @Qualifier(value = "computerDatabaseDataSource")
+    private BoneCPDataSource ds;
  
     @Override
     public List<Company> retrieveAll() {
@@ -34,7 +39,7 @@ public class CompanyDaoImpl implements CompanyDao {
         ResultSet rs = null;
         List<Company> companies = new ArrayList<Company>();
 
-        Connection conn = df.getConn();
+        Connection conn = DataSourceUtils.getConnection(ds);
 
         try {
             // Execute query
@@ -55,9 +60,9 @@ public class CompanyDaoImpl implements CompanyDao {
 
         } catch (SQLException se) {
             logger.warn("Error in SQL query:" + se.getMessage());
-            df.notifyTransactionError();
+            throw new DataAccessResourceFailureException("Error in SQL query:" + se.getMessage());
         } finally {
-            closeObjects(conn,stmt,rs);
+            closeObjects(stmt,rs);
         }
 
         logger.debug(new StringBuilder("Found ").append(companies.size()).append(" elements").toString());
@@ -73,7 +78,7 @@ public class CompanyDaoImpl implements CompanyDao {
         ResultSet rs = null;
         Company company = null;
 
-        Connection conn = df.getConn();
+        Connection conn = DataSourceUtils.getConnection(ds);
 
         try {
             // Execute query
@@ -96,22 +101,17 @@ public class CompanyDaoImpl implements CompanyDao {
 
         } catch (SQLException se) {
             logger.warn("Error in SQL query:" + se.getMessage());
-            df.notifyTransactionError();
+            throw new DataAccessResourceFailureException("Error in SQL query:" + se.getMessage());
         } finally {
-            closeObjects(conn,stmt,rs);
+           closeObjects(stmt,rs);
         }
         logger.debug("Leaving retrieve");
         return company;
     }
 
-	private void closeObjects(Connection conn, Statement stmt) {
-        closeObjects(conn,stmt,null);
-    }
-
-    private void closeObjects(Connection conn, Statement stmt, ResultSet rs) {
+    private void closeObjects(Statement stmt, ResultSet rs) {
+        // Clean-up environment
         try {
-            if(conn != null && conn.getAutoCommit())
-                df.closeConn();
             if (stmt != null)
                 stmt.close();
             if (rs != null)
@@ -119,6 +119,7 @@ public class CompanyDaoImpl implements CompanyDao {
         } catch (SQLException e) {
             logger.warn("Cannot close JDBC related objects:" + e.getMessage());
             e.printStackTrace();
+            throw new CleanupFailureDataAccessException("Cannot close JDBC related objects",e);
         }
     }
 

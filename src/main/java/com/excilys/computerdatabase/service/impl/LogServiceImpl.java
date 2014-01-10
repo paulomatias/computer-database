@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import com.excilys.computerdatabase.domain.Log;
 import com.excilys.computerdatabase.persistence.LogDao;
 import com.excilys.computerdatabase.service.LogService;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Created with IntelliJ IDEA.
@@ -17,6 +18,7 @@ import com.excilys.computerdatabase.service.LogService;
  * To change this template use File | Settings | File Templates.
  */
 @Service
+@Transactional(readOnly = true)
 public class LogServiceImpl implements LogService {
 
     @Autowired
@@ -25,6 +27,7 @@ public class LogServiceImpl implements LogService {
     private static Logger logger = LoggerFactory.getLogger(LogServiceImpl.class);
 
     @Override
+    @Transactional(readOnly = false)
     public Log create(Log log) {
         return logDao.create(log);
     }

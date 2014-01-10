@@ -4,11 +4,16 @@ import com.excilys.computerdatabase.common.Page;
 import com.excilys.computerdatabase.domain.Company;
 import com.excilys.computerdatabase.domain.Computer;
 import com.excilys.computerdatabase.persistence.ComputerDao;
-import com.excilys.computerdatabase.persistence.factory.DaoFactory;
+import com.jolbox.bonecp.BoneCPDataSource;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.CleanupFailureDataAccessException;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataAccessResourceFailureException;
+import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.stereotype.Repository;
 
 import java.sql.*;
@@ -37,16 +42,17 @@ public class ComputerDaoImpl implements ComputerDao {
     private static final String COMPANY_DESC = "CASE WHEN company.name IS NULL THEN 1 ELSE 0 END ASC, company.name DESC ";
 
     @Autowired
-    private DaoFactory df;
+    @Qualifier(value = "computerDatabaseDataSource")
+    private BoneCPDataSource ds;
 
     @Override
-    public Computer create(Computer computer) {
+    public Computer create(Computer computer) throws DataAccessException {
         logger.debug("Entering create with object " + computer);
         String sql = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
 
-        Connection conn = df.getConn();
+        Connection conn = DataSourceUtils.getConnection(ds);
 
         try {
 
@@ -78,9 +84,9 @@ public class ComputerDaoImpl implements ComputerDao {
 
         } catch (SQLException se) {
             logger.warn("Error in SQL query:" + se.getMessage());
-            df.notifyTransactionError();
+            throw new DataAccessResourceFailureException("Error in SQL query:" + se.getMessage());
         } finally {
-            closeObjects(conn,stmt,rs);
+            closeObjects(stmt);
         }
 
         logger.debug("leaving create");
@@ -97,7 +103,7 @@ public class ComputerDaoImpl implements ComputerDao {
     public Page<Computer> retrievePage(int offset, int limit, String searchString, int sort) {
         logger.debug(new StringBuilder("Entering retrievePage with offset ").append(offset).append(" limit ").append(limit).append(" searchString ").append(searchString).append(" sort ").append(sort).toString());
 
-        Connection conn = df.getConn();
+        Connection conn = DataSourceUtils.getConnection(ds);
 
         List<Computer> computers = new ArrayList<Computer>();
         int count = 0;
@@ -201,9 +207,9 @@ public class ComputerDaoImpl implements ComputerDao {
 
         } catch (SQLException se) {
             logger.warn("Error in SQL query:" + se.getMessage());
-            df.notifyTransactionError();
+            throw new DataAccessResourceFailureException("Error in SQL query:" + se.getMessage());
         } finally {
-            closeObjects(conn,stmt,rs);
+           closeObjects(stmt,rs);
         }
 
         logger.debug("Found " + computers.size() + " elements");
@@ -233,7 +239,7 @@ public class ComputerDaoImpl implements ComputerDao {
         ResultSet rs = null;
         Computer computer = null;
 
-        Connection conn = df.getConn();
+        Connection conn = DataSourceUtils.getConnection(ds);
 
         try {
             // Execute query
@@ -262,9 +268,9 @@ public class ComputerDaoImpl implements ComputerDao {
 
         } catch (SQLException se) {
             logger.warn("Error in SQL query:" + se.getMessage());
-            df.notifyTransactionError();
+            throw new DataAccessResourceFailureException("Error in SQL query:" + se.getMessage());
         } finally {
-            closeObjects(conn,stmt,rs);
+            closeObjects(stmt,rs);
         }
 
         logger.debug("Leaving retrieve");
@@ -278,7 +284,7 @@ public class ComputerDaoImpl implements ComputerDao {
         boolean result = false;
         PreparedStatement stmt = null;
 
-        Connection conn = df.getConn();
+        Connection conn = DataSourceUtils.getConnection(ds);
 
         try {
             // Execute query
@@ -308,9 +314,9 @@ public class ComputerDaoImpl implements ComputerDao {
 
         } catch (SQLException se) {
             logger.warn("Error in SQL query:" + se.getMessage());
-            df.notifyTransactionError();
+            throw new DataAccessResourceFailureException("Error in SQL query:" + se.getMessage());
         } finally {
-            closeObjects(conn,stmt);
+            closeObjects(stmt);
         }
 
         if(!result)
@@ -328,13 +334,12 @@ public class ComputerDaoImpl implements ComputerDao {
         PreparedStatement stmt = null;
         String computers = "";
 
-        Connection conn = df.getConn();
+        Connection conn = DataSourceUtils.getConnection(ds);
 
         if(computerIds == null || computerIds.isEmpty()) {
             logger.debug("Nothing to delete");
             return false;
         }
-
 
         try {
             // Execute query
@@ -366,9 +371,9 @@ public class ComputerDaoImpl implements ComputerDao {
 
         } catch (SQLException se) {
             logger.warn("Error in SQL query:" + se.getMessage());
-            df.notifyTransactionError();
+            throw new DataAccessResourceFailureException("Error in SQL query:" + se.getMessage());
         } finally {
-            closeObjects(conn,stmt);
+            closeObjects(stmt);
         }
 
         if(!result)
@@ -377,14 +382,13 @@ public class ComputerDaoImpl implements ComputerDao {
         return result;
     }
 
-		private void closeObjects(Connection conn, Statement stmt) {
-        closeObjects(conn,stmt,null);
+    private void closeObjects(Statement stmt) {
+        closeObjects(stmt,null);
     }
 
-    private void closeObjects(Connection conn, Statement stmt, ResultSet rs) {
+    private void closeObjects(Statement stmt, ResultSet rs) {
+        // Clean-up environment
         try {
-            if(conn != null && conn.getAutoCommit())
-                df.closeConn();
             if (stmt != null)
                 stmt.close();
             if (rs != null)
@@ -392,6 +396,8 @@ public class ComputerDaoImpl implements ComputerDao {
         } catch (SQLException e) {
             logger.warn("Cannot close JDBC related objects:" + e.getMessage());
             e.printStackTrace();
+            throw new CleanupFailureDataAccessException("Cannot close JDBC related objects",e);
         }
     }
+
 }

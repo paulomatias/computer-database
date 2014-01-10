@@ -21,10 +21,14 @@
         <property name="defaultLocale" value="fr_FR" />
     </bean>
 
+
+    <!-- Import datasource resource -->
+    <import resource="datasource-context.xml"/>
+
     <!-- Packages to scan to instanciate beans in spring context -->
     <context:component-scan base-package="com.excilys.computerdatabase.validator"/>
-    <context:component-scan base-package="com.excilys.computerdatabase.mapper"/>
     <context:component-scan base-package="com.excilys.computerdatabase.persistence"/>
     <context:component-scan base-package="com.excilys.computerdatabase.service"/>
+    <context:component-scan base-package="com.excilys.computerdatabase.mapper"/>
 
 </beans>

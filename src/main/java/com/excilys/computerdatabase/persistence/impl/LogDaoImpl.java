@@ -2,10 +2,14 @@ package com.excilys.computerdatabase.persistence.impl;
 
 import com.excilys.computerdatabase.domain.Log;
 import com.excilys.computerdatabase.persistence.LogDao;
-import com.excilys.computerdatabase.persistence.factory.DaoFactory;
+import com.jolbox.bonecp.BoneCPDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.CleanupFailureDataAccessException;
+import org.springframework.dao.DataAccessResourceFailureException;
+import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.stereotype.Repository;
 
 import java.sql.*;
@@ -23,7 +27,8 @@ public class LogDaoImpl implements LogDao {
     private static Logger logger = LoggerFactory.getLogger(ComputerDaoImpl.class);
 
     @Autowired
-    private DaoFactory df;
+    @Qualifier(value = "computerDatabaseDataSource")
+    private BoneCPDataSource ds;
 
     @Override
     public Log create(Log log) {
@@ -32,7 +37,7 @@ public class LogDaoImpl implements LogDao {
         PreparedStatement stmt = null;
         ResultSet rs = null;
 
-        Connection conn = df.getConn();
+        Connection conn = DataSourceUtils.getConnection(ds);
 
         try {
             // Get a connection from the DaoManager
@@ -60,17 +65,16 @@ public class LogDaoImpl implements LogDao {
 
         } catch (SQLException se) {
             logger.warn("Error in SQL query:" + se.getMessage());
-            df.notifyTransactionError();
+            throw new DataAccessResourceFailureException("Error in SQL query:" + se.getMessage());
         } finally {
             // Clean-up environment
             try {
-                if(conn != null && conn.getAutoCommit())
-                    df.closeConn();
                 if (stmt != null)
                     stmt.close();
             } catch (SQLException e) {
                 logger.warn("Cannot close JDBC related objects:" + e.getMessage());
                 e.printStackTrace();
+                throw new CleanupFailureDataAccessException("Cannot close JDBC related objects",e);
             }
         }
 

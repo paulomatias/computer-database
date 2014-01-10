@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import com.excilys.computerdatabase.domain.Company;
 import com.excilys.computerdatabase.persistence.CompanyDao;
 import com.excilys.computerdatabase.service.CompanyService;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Project: computer-database
@@ -19,6 +20,7 @@ import com.excilys.computerdatabase.service.CompanyService;
  * Description: N/A
  */
 @Service
+@Transactional(readOnly = true)
 public class CompanyServiceImpl implements CompanyService {
 
     @Autowired
