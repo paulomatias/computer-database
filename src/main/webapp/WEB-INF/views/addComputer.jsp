@@ -14,10 +14,10 @@
                             <form:input path="name" value="${requestScope.computer.name}"/>
                         </fn:formElement>
                         <fn:formElement path="introduced" label="computer.introduced" helpInline="form.hint.date">
-                            <form:input path="introduced" value="${requestScope.computer.introduced}" pattern="(0?[1-9]|[1-2][0-9]|3[01])/(0?[1-9]|1[012])/(19[6-9][0-9]|20[0-9][0-9])" />
+                            <form:input path="introduced" value="${requestScope.computer.introduced}" />
                         </fn:formElement>
                         <fn:formElement path="discontinued" label="computer.discontinued" helpInline="form.hint.date">
-                            <form:input path="discontinued" value="${requestScope.computer.discontinued}" pattern="(0?[1-9]|[1-2][0-9]|3[01])/(0?[1-9]|1[012])/(19[6-9][0-9]|20[0-9][0-9])" />
+                            <form:input path="discontinued" value="${requestScope.computer.discontinued}" />
                         </fn:formElement>
                         <fn:formElement path="companyId" label="company.name" helpInline="">
                                 <form:select path="companyId">

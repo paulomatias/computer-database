@@ -1,21 +1,14 @@
 package com.excilys.computerdatabase.persistence.impl;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.Timestamp;
-import java.sql.Types;
-
+import com.excilys.computerdatabase.domain.Log;
+import com.excilys.computerdatabase.persistence.LogDao;
+import com.excilys.computerdatabase.persistence.factory.DaoFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import com.excilys.computerdatabase.domain.Log;
-import com.excilys.computerdatabase.persistence.LogDao;
-import com.excilys.computerdatabase.persistence.factory.DaoFactory;
+import java.sql.*;
 
 /**
  * Created with IntelliJ IDEA.
@@ -53,7 +46,7 @@ public class LogDaoImpl implements LogDao {
 
             stmt.setString(1, log.getOperationType().toString());
             if(log.getOperationDate() != null) {
-                stmt.setTimestamp(2,new Timestamp(log.getOperationDate().getTime().getTime()));
+                stmt.setTimestamp(2,new Timestamp(log.getOperationDate().getMillis()));
             }
             else
                 stmt.setNull(2, Types.TIMESTAMP);

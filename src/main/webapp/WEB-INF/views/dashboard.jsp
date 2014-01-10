@@ -3,6 +3,8 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="WEB-INF/cdblib" prefix="fn" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
+<%@ taglib prefix="joda" uri="http://www.joda.org/joda/time/tags" %>
+
 <section id="main">
     <div class="test"><fn:link page="${computerPage.currentPage}" searchString="${computerPage.searchString}" action="dashboard" sort="${computerPage.sort}" lang="fr">FR</fn:link>/
 <fn:link page="${computerPage.currentPage}" searchString="${computerPage.searchString}" action="dashboard" sort="${computerPage.sort}" lang="en">EN</fn:link></div>
@@ -76,9 +78,8 @@
                     <tr>
                         <td class="editMode"><input type="checkbox" name="cb" class="cb" value="${comp.id}"></td>
                         <td><a href="editComputer?id=${comp.id}" onclick="">${comp.name}</a></td>
-                        <!-- Calls getIntroducedFormated() method using reflection -->
-                        <td>${comp.introducedFormated}</td>
-                        <td>${comp.discontinuedFormated}</td>
+                        <td><joda:format value="${comp.introduced}" locale="${locale}" style="M-" /></td>
+                        <td><joda:format value="${comp.discontinued}" locale="${locale}" style="M-" /></td>
                         <td>${comp.company.name}</td>
 
                     </tr>

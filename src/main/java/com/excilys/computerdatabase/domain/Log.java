@@ -1,9 +1,8 @@
 package com.excilys.computerdatabase.domain;
 
 import com.excilys.computerdatabase.common.LogOperationType;
-
-import java.util.Calendar;
-import java.util.Date;
+import org.joda.time.DateTime;
+import org.springframework.format.annotation.DateTimeFormat;
 
 /**
  * Created with IntelliJ IDEA.
@@ -15,7 +14,8 @@ import java.util.Date;
 public class Log {
     private Long id;
     private LogOperationType operationType;
-    private Calendar operationDate;
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    private DateTime operationDate;
     private String description;
 
 
@@ -86,16 +86,8 @@ public class Log {
             return this;
         }
 
-        public Builder operationDate(Calendar operationDate) {
+        public Builder operationDate(DateTime operationDate) {
             this.log.operationDate = operationDate;
-            return this;
-        }
-
-        public Builder operationDate(Date operationDate) {
-            if(operationDate != null) {
-                this.log.operationDate = Calendar.getInstance();
-                this.log.operationDate.setTime(operationDate);
-            }
             return this;
         }
 
@@ -134,11 +126,11 @@ public class Log {
         this.operationType = operationType;
     }
 
-    public Calendar getOperationDate() {
+    public DateTime getOperationDate() {
         return operationDate;
     }
 
-    public void setOperationDate(Calendar operationDate) {
+    public void setOperationDate(DateTime operationDate) {
         this.operationDate = operationDate;
     }
 

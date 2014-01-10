@@ -16,6 +16,7 @@
         <bonecp.version>0.8.0.RELEASE</bonecp.version>
         <spring.version>4.0.0.RELEASE</spring.version>
         <hibernate-validator.version>5.0.2.Final</hibernate-validator.version>
+        <joda-time.version>2.3</joda-time.version>
     </properties>
     <dependencies>
         <!-- Servlet api (provided by servlet container) -->
@@ -90,6 +91,12 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
+            <version>1.7.0</version>
+            <scope>runtime</scope>
+        </dependency>
         <!-- Spring MVC -->
         <dependency>
             <groupId>org.springframework</groupId>
@@ -109,12 +116,16 @@
             <version>${hibernate-validator.version}</version>
             <scope>compile</scope>
         </dependency>
-
+        <!-- Joda Time -->
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>jcl-over-slf4j</artifactId>
-            <version>1.7.0</version>
-            <scope>runtime</scope>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+            <version>${joda-time.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time-jsptags</artifactId>
+            <version>1.1.1</version>
         </dependency>
     </dependencies>
     <build>

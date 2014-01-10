@@ -3,9 +3,18 @@ package com.excilys.computerdatabase.mapper;
 import com.excilys.computerdatabase.domain.Computer;
 import com.excilys.computerdatabase.dto.ComputerDto;
 import com.excilys.computerdatabase.service.CompanyService;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.context.support.ResourceBundleMessageSource;
+import org.springframework.format.datetime.DateFormatter;
+import org.springframework.format.datetime.joda.DateTimeFormatterFactory;
 import org.springframework.stereotype.Component;
 
 import java.text.DateFormat;
@@ -24,15 +33,19 @@ public class ComputerMapper {
 
     private static Logger logger = LoggerFactory.getLogger(ComputerMapper.class);
 
-    private static final DateFormat DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy");
-
     @Autowired
     private CompanyService companyService;
+
+    @Autowired
+    @Qualifier(value = "messageSource")
+    private ResourceBundleMessageSource messageSource;
 
     public Computer fromDto(ComputerDto dto) {
         logger.debug("Entering fromDto");
         if(dto == null)
             return null;
+
+        DateTimeFormatter dtf = DateTimeFormat.forPattern(messageSource.getMessage("form.date.pattern",null,LocaleContextHolder.getLocale()));
 
         Computer.Builder cb = Computer.builder();
 
@@ -42,18 +55,10 @@ public class ComputerMapper {
             cb.company(companyService.retrieve(dto.getCompanyId()));
 
         if(dto.getIntroduced() != null && !dto.getIntroduced().isEmpty())
-            try {
-                cb.introduced(DATE_FORMAT.parse(dto.getIntroduced()));
-            } catch (ParseException e) {
-                logger.warn("Cannot map object from DTO: " + e.getMessage());
-            }
+            cb.introduced(dtf.parseDateTime(dto.getIntroduced()));
 
         if(dto.getDiscontinued() != null && !dto.getDiscontinued().isEmpty())
-            try {
-                cb.discontinued(DATE_FORMAT.parse(dto.getDiscontinued()));
-            } catch (ParseException e) {
-                logger.warn("Cannot map object from DTO: " + e.getMessage());
-            }
+            cb.discontinued(dtf.parseDateTime(dto.getDiscontinued()));
 
         logger.debug("leaving fromDto with object built:" + cb.build());
         return cb.build();
@@ -64,15 +69,17 @@ public class ComputerMapper {
         if(obj == null)
             return null;
 
+        DateTimeFormatter dtf = DateTimeFormat.forPattern(messageSource.getMessage("form.date.pattern",null,LocaleContextHolder.getLocale()));
+
         ComputerDto.Builder cdtob = ComputerDto.builder();
 
         cdtob.id(obj.getId()).name(obj.getName());
 
         if(obj.getIntroduced() != null)
-            cdtob.introduced(DATE_FORMAT.format(obj.getIntroduced().getTime()));
+            cdtob.introduced(obj.getIntroduced().toString(dtf));
 
         if(obj.getDiscontinued() != null)
-            cdtob.discontinued(DATE_FORMAT.format(obj.getDiscontinued().getTime()));
+            cdtob.discontinued(obj.getDiscontinued().toString(dtf));
 
         if(obj.getCompany() != null)
             cdtob.companyId(obj.getCompany().getId());

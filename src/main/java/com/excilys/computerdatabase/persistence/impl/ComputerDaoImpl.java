@@ -1,24 +1,19 @@
 package com.excilys.computerdatabase.persistence.impl;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.Types;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
-
 import com.excilys.computerdatabase.common.Page;
 import com.excilys.computerdatabase.domain.Company;
 import com.excilys.computerdatabase.domain.Computer;
 import com.excilys.computerdatabase.persistence.ComputerDao;
 import com.excilys.computerdatabase.persistence.factory.DaoFactory;
+import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Project: computer-database
@@ -62,18 +57,16 @@ public class ComputerDaoImpl implements ComputerDao {
             stmt = conn.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS);
 
             stmt.setString(1, computer.getName());
-            if(computer.getIntroduced() != null) {
-                stmt.setDate(2,new java.sql.Date(computer.getIntroduced().getTime().getTime()));
-            }
+            if(computer.getIntroduced() != null)
+                stmt.setDate(2,new java.sql.Date(computer.getIntroduced().getMillis()));
             else
                 stmt.setNull(2,Types.TIMESTAMP);
             if(computer.getDiscontinued() != null)
-                stmt.setDate(3,new java.sql.Date(computer.getDiscontinued().getTime().getTime()));
+                stmt.setDate(3,new java.sql.Date(computer.getDiscontinued().getMillis()));
             else
                 stmt.setNull(3,Types.TIMESTAMP);
-            if(computer.getCompany() != null) {
+            if(computer.getCompany() != null)
                 stmt.setLong(4,computer.getCompany().getId());
-            }
             else
                 stmt.setNull(4,Types.BIGINT);
 
@@ -182,8 +175,8 @@ public class ComputerDaoImpl implements ComputerDao {
                 //Create computer result using builder pattern
                 Computer computer = Computer.builder().id(rs.getLong("computer.id"))
                         .name(rs.getString("computer.name"))
-                        .introduced(rs.getDate("introduced"))
-                        .discontinued(rs.getDate("discontinued"))
+                        .introduced(rs.getDate("introduced") == null ? null : new DateTime(rs.getDate("introduced")))
+                        .discontinued(rs.getDate("discontinued") == null ? null : new DateTime(rs.getDate("discontinued")))
                         .company(new Company(rs.getLong("company.id"), rs.getString("company.name")))
                         .build();
 
@@ -260,8 +253,8 @@ public class ComputerDaoImpl implements ComputerDao {
                 computer = Computer.builder()
                         .id(rs.getLong("id"))
                         .name(rs.getString("computer.name"))
-                        .introduced(rs.getDate("introduced"))
-                        .discontinued(rs.getDate("discontinued"))
+                        .introduced(rs.getDate("introduced") == null ? null : new DateTime(rs.getDate("introduced")))
+                        .discontinued(rs.getDate("discontinued") == null ? null : new DateTime(rs.getDate("discontinued")))
                         .company(new Company(rs.getLong("company.id"), rs.getString("company.name")))
                         .build();
                 break;
@@ -297,11 +290,11 @@ public class ComputerDaoImpl implements ComputerDao {
 
             stmt.setString(1, computer.getName());
             if(computer.getIntroduced() != null)
-                stmt.setDate(2, new java.sql.Date(computer.getIntroduced().getTime().getTime()));
+                stmt.setDate(2, new java.sql.Date(computer.getIntroduced().getMillis()));
             else
                 stmt.setNull(2,Types.TIMESTAMP);
             if(computer.getDiscontinued() != null)
-                stmt.setDate(3, new java.sql.Date(computer.getDiscontinued().getTime().getTime()));
+                stmt.setDate(3, new java.sql.Date(computer.getDiscontinued().getMillis()));
             else
                 stmt.setNull(3, Types.TIMESTAMP);
             if(computer.getCompany() != null)

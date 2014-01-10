@@ -1,9 +1,10 @@
 package com.excilys.computerdatabase.domain;
 
+import org.joda.time.DateTime;
+import org.springframework.format.annotation.DateTimeFormat;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
 
 /**
  * Project: computer-database
@@ -18,22 +19,20 @@ public class Computer {
      * Attributes
      */
 
-    private static final DateFormat DATE_FORMAT = new SimpleDateFormat("dd MMMM yyyy");
-
     private Long id;
     private String name;
-    private Calendar introduced;
-    private Calendar discontinued;
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    private DateTime introduced;
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    private DateTime discontinued;
     private Company company;
-
-
 
     /*
      * Constructors
      */
 
     public Computer() {}
-    public Computer(Long id, String name, Calendar introduced, Calendar discontinued, Company company) {
+    public Computer(Long id, String name, DateTime introduced, DateTime discontinued, Company company) {
         super();
         this.id = id;
         this.name = name;
@@ -124,29 +123,13 @@ public class Computer {
             return this;
         }
 
-        public Builder introduced(Calendar introduced) {
+        public Builder introduced(DateTime introduced) {
             this.computer.introduced = introduced;
             return this;
         }
 
-        public Builder introduced(Date introduced) {
-            if(introduced != null) {
-                this.computer.introduced = Calendar.getInstance();
-                this.computer.introduced.setTime(introduced);
-            }
-            return this;
-        }
-
-        public Builder discontinued(Calendar discontinued) {
+        public Builder discontinued(DateTime discontinued) {
             this.computer.discontinued = discontinued;
-            return this;
-        }
-
-        public Builder discontinued(Date discontinued) {
-            if(discontinued != null) {
-                this.computer.discontinued = Calendar.getInstance();
-                this.computer.discontinued.setTime(discontinued);
-            }
             return this;
         }
 
@@ -186,44 +169,20 @@ public class Computer {
         this.name = name;
     }
 
-    public Calendar getIntroduced() {
+    public DateTime getIntroduced() {
         return introduced;
     }
 
-    public String getIntroducedFormated() {
-        if(introduced != null)
-            return DATE_FORMAT.format(introduced.getTime());
-        return "N/A";
-    }
-
-    public void setIntroduced(Calendar introduced) {
+    public void setIntroduced(DateTime introduced) {
         this.introduced = introduced;
     }
 
-    public void setIntroduced(Date introduced) {
-        if(this.introduced == null)
-            this.introduced = Calendar.getInstance();
-        this.introduced.setTime(introduced);
-    }
-
-    public Calendar getDiscontinued() {
+    public DateTime getDiscontinued() {
         return discontinued;
     }
 
-    public String getDiscontinuedFormated() {
-        if(discontinued != null)
-            return DATE_FORMAT.format(discontinued.getTime());
-        return "N/A";
-    }
-
-    public void setDiscontinued(Calendar discontinued) {
+    public void setDiscontinued(DateTime discontinued) {
         this.discontinued = discontinued;
-    }
-
-    public void setDiscontinued(Date discontinued) {
-        if(this.discontinued == null)
-            this.discontinued = Calendar.getInstance();
-        this.discontinued.setTime(discontinued);
     }
 
     public Company getCompany() {

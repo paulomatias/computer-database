@@ -1,13 +1,5 @@
 package com.excilys.computerdatabase.service.impl;
 
-import java.util.Calendar;
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.excilys.computerdatabase.common.LogOperationType;
 import com.excilys.computerdatabase.common.Page;
 import com.excilys.computerdatabase.domain.Computer;
@@ -16,6 +8,13 @@ import com.excilys.computerdatabase.persistence.ComputerDao;
 import com.excilys.computerdatabase.persistence.LogDao;
 import com.excilys.computerdatabase.persistence.factory.DaoFactory;
 import com.excilys.computerdatabase.service.ComputerService;
+import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * Project: computer-database
@@ -45,9 +44,9 @@ public class ComputerServiceImpl implements ComputerService {
         try {
 
             result = computerDao.create(computer);
-            Log log = Log.builder().operationDate(Calendar.getInstance().getTime())
+            Log log = Log.builder().operationDate(DateTime.now())
                     .operationType(LogOperationType.COMPUTER_ADD)
-                    .description("id:"+result.getId()).build();
+                    .description("id:" + result.getId()).build();
 
             logDao.create(log);
 
@@ -81,7 +80,7 @@ public class ComputerServiceImpl implements ComputerService {
         boolean result = false;
         try {
             result = computerDao.update(computer);
-            Log log = Log.builder().operationDate(Calendar.getInstance().getTime())
+            Log log = Log.builder().operationDate(DateTime.now())
                     .operationType(LogOperationType.COMPUTER_UPDATE)
                     .description("id:"+computer.getId()).build();
             logDao.create(log);
@@ -99,7 +98,7 @@ public class ComputerServiceImpl implements ComputerService {
         boolean result = false;
         try {
             result = computerDao.delete(computerIds);
-            Log log = Log.builder().operationDate(Calendar.getInstance().getTime())
+            Log log = Log.builder().operationDate(DateTime.now())
                     .operationType(LogOperationType.COMPUTER_UPDATE)
                     .description("ids:"+computerIds.toString()).build();
             logDao.create(log);
