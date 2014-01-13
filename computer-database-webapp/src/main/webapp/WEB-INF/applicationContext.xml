@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd">
+
+    <context:property-placeholder location="classpath:dbconf.properties" />
+
+    <!-- Locale source bean -->
+    <bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
+        <!-- Locale source file prefix -->
+        <property name="basename" value="language" />
+        <property name="defaultEncoding" value="UTF-8"/>
+    </bean>
+
+    <!-- Default locale (Session) -->
+    <bean id="localeResolver" class="org.springframework.web.servlet.i18n.SessionLocaleResolver">
+        <property name="defaultLocale" value="fr_FR" />
+    </bean>
+
+    <!-- Import datasource resource -->
+    <import resource="classpath:datasource-context.xml"/>
+
+    <!-- Import contexts of other modules -->
+    <import resource="classpath:persistence-context.xml"/>
+    <import resource="classpath:service-context.xml"/>
+    <import resource="classpath:binding-context.xml"/>
+
+</beans>
