@@ -30,7 +30,6 @@
     </modules>
     <dependencyManagement>
         <dependencies>
-
             <!-- Project modules -->
             <dependency>
                 <groupId>com.excilys</groupId>
@@ -104,16 +103,16 @@
                 <artifactId>spring-beans</artifactId>
                 <version>${spring.version}</version>
             </dependency>
-		<dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-tx</artifactId>
-            <version>${spring.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-jdbc</artifactId>
-            <version>${spring.version}</version>
-        </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-tx</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-jdbc</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-web</artifactId>
@@ -177,6 +176,5 @@
                 </configuration>
             </plugin>
         </plugins>
-
     </build>
 </project>

@@ -4,20 +4,24 @@ import com.excilys.computerdatabase.common.Page;
 import com.excilys.computerdatabase.domain.Company;
 import com.excilys.computerdatabase.domain.Computer;
 import com.excilys.computerdatabase.persistence.ComputerDao;
-import com.jolbox.bonecp.BoneCPDataSource;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.dao.CleanupFailureDataAccessException;
 import org.springframework.dao.DataAccessException;
-import org.springframework.dao.DataAccessResourceFailureException;
-import org.springframework.jdbc.datasource.DataSourceUtils;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.StatementCreatorUtils;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
-import java.sql.*;
-import java.util.ArrayList;
+import java.sql.Date;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Types;
 import java.util.List;
 
 /**
@@ -42,51 +46,35 @@ public class ComputerDaoImpl implements ComputerDao {
     private static final String COMPANY_DESC = "CASE WHEN company.name IS NULL THEN 1 ELSE 0 END ASC, company.name DESC ";
 
     @Autowired
-    @Qualifier(value = "computerDatabaseDataSource")
-    private BoneCPDataSource ds;
+    private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
     @Override
-    public Computer create(Computer computer) throws DataAccessException {
+    public Computer create(final Computer computer) throws DataAccessException {
         logger.debug("Entering create with object " + computer);
 
-        String sql = null;
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
-        Connection conn = DataSourceUtils.getConnection(ds);
+        final String sql = "INSERT INTO computer(name, introduced, discontinued, company_id) VALUES( :computerName , :introduced , :discontinued , :companyId );";
 
-        try {
-            logger.debug("Creating statement...");
+        KeyHolder keyHolder = new GeneratedKeyHolder();
 
-            sql = "INSERT INTO computer(name, introduced, discontinued, company_id) VALUES(?,?,?,?);";
-            stmt = conn.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS);
+        MapSqlParameterSource params = new MapSqlParameterSource();
 
-            stmt.setString(1, computer.getName());
-            if(computer.getIntroduced() != null)
-                stmt.setDate(2,new java.sql.Date(computer.getIntroduced().getMillis()));
-            else
-                stmt.setNull(2,Types.TIMESTAMP);
-            if(computer.getDiscontinued() != null)
-                stmt.setDate(3,new java.sql.Date(computer.getDiscontinued().getMillis()));
-            else
-                stmt.setNull(3,Types.TIMESTAMP);
-            if(computer.getCompany() != null)
-                stmt.setLong(4,computer.getCompany().getId());
-            else
-                stmt.setNull(4,Types.BIGINT);
+        params.addValue("computerName",computer.getName());
+        if (computer.getIntroduced() != null)
+            params.addValue("introduced",new java.sql.Date(computer.getIntroduced().getMillis()));
+        else
+            params.addValue("introduced", null, Types.NULL);
+        if (computer.getDiscontinued() != null)
+            params.addValue("discontinued",new java.sql.Date(computer.getDiscontinued().getMillis()));
+        else
+            params.addValue("discontinued", null, Types.NULL);
+        params.addValue("companyId",computer.getCompany() == null ? null : computer.getCompany().getId(), Types.BIGINT);
 
-            stmt.executeUpdate();
+        namedParameterJdbcTemplate.update(sql, params, keyHolder);
 
-            rs = stmt.getGeneratedKeys();
-            rs.first();
-            computer.setId(rs.getLong(1));
-            rs.close();
-
-        } catch (SQLException se) {
-            logger.warn("Error in SQL query:" + se.getMessage());
-            throw new DataAccessResourceFailureException("Error in SQL query:" + se.getMessage());
-        } finally {
-            closeObjects(stmt);
-        }
+        computer.setId((Long)keyHolder.getKey());
 
         logger.debug("leaving create");
         return computer;
@@ -106,107 +94,71 @@ public class ComputerDaoImpl implements ComputerDao {
                                         .append(" sort ").append(sort)
                                         .toString());
 
-        List<Computer> computers = new ArrayList<Computer>();
+        List<Computer> computers = null;
         int count = 0, totalCount = 0;
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
         Page<Computer> computerPage = new Page<Computer>();
-        Connection conn = DataSourceUtils.getConnection(ds);
-
         computerPage.setSearchString(searchString);
         computerPage.setSort(sort);
 
         if(searchString != null)
             searchString = new StringBuilder().append("%").append(searchString).append("%").toString();
 
-        try {
-            logger.debug("Creating statement...");
 
-            StringBuilder sql = new StringBuilder();
-            sql.append("SELECT computer.id, computer.name, introduced, discontinued, company.id, company.name FROM computer LEFT JOIN company ON computer.company_id = company.id ");
-            if(searchString != null)
-                sql.append("WHERE computer.name LIKE ? OR company.name LIKE ? ");
-            sql.append("ORDER BY ");
+        final StringBuilder sql = new StringBuilder();
+        sql.append("SELECT computer.id, computer.name, introduced, discontinued, company.id, company.name FROM computer LEFT JOIN company ON computer.company_id = company.id ");
+        if(searchString != null)
+            sql.append("WHERE computer.name LIKE :searchString OR company.name LIKE :searchString ");
+        sql.append("ORDER BY ");
 
-            StringBuilder sql2 = new StringBuilder("SELECT count(*) AS count FROM computer LEFT JOIN company ON computer.company_id = company.id ");
-            if(searchString != null)
-                sql2.append("WHERE computer.name LIKE ? OR company.name LIKE ? ");
+        final StringBuilder sql2 = new StringBuilder("SELECT count(*) AS count FROM computer LEFT JOIN company ON computer.company_id = company.id ");
+        if(searchString != null)
+            sql2.append("WHERE computer.name LIKE :searchString OR company.name LIKE :searchString ");
 
-            //Sort computer
-            switch(sort) {
-                case 0:
-                    sql.append(COMPUTER_ASC).append(", ").append(INTRODUCED_ASC).append(", ").append(DISCONTINUED_ASC).append(", ").append(COMPANY_ASC);
-                    break;
-                case 1:
-                    sql.append(COMPUTER_DESC).append(", ").append(INTRODUCED_ASC).append(", ").append(DISCONTINUED_ASC).append(", ").append(COMPANY_ASC);
-                    break;
-                case 2:
-                    sql.append(INTRODUCED_ASC).append(", ").append(COMPUTER_ASC).append(", ").append(DISCONTINUED_ASC).append(", ").append(COMPANY_ASC);
-                    break;
-                case 3:
-                    sql.append(INTRODUCED_DESC).append(", ").append(COMPUTER_ASC).append(", ").append(DISCONTINUED_ASC).append(", ").append(COMPANY_ASC);
-                    break;
-                case 4:
-                    sql.append(DISCONTINUED_ASC).append(", ").append(COMPUTER_ASC).append(", ").append(INTRODUCED_ASC).append(", ").append(COMPANY_ASC);
-                    break;
-                case 5:
-                    sql.append(DISCONTINUED_DESC).append(", ").append(COMPUTER_ASC).append(", ").append(INTRODUCED_ASC).append(", ").append(COMPANY_ASC);
-                    break;
-                case 6:
-                    sql.append(COMPANY_ASC).append(", ").append(COMPUTER_ASC).append(", ").append(INTRODUCED_ASC).append(", ").append(DISCONTINUED_ASC);
-                    break;
-                case 7:
-                    sql.append(COMPANY_DESC).append(", ").append(COMPUTER_ASC).append(", ").append(INTRODUCED_ASC).append(", ").append(DISCONTINUED_ASC);
-                    break;
-            }
-
-            if(limit > 0)
-                sql.append("LIMIT ").append(limit).append(" ");
-            if(offset > 0)
-                sql.append("OFFSET ").append(offset);
-
-            stmt = conn.prepareStatement(sql.toString());
-            if(searchString != null) {
-                stmt.setString(1,searchString);
-                stmt.setString(2,searchString);
-            }
-            rs = stmt.executeQuery();
-            // Extract data from result set
-            while (rs.next()) {
-                count++;
-                //Create computer result using builder pattern
-                Computer computer = Computer.builder().id(rs.getLong("computer.id"))
-                        .name(rs.getString("computer.name"))
-                        .introduced(rs.getDate("introduced") == null ? null : new DateTime(rs.getDate("introduced")))
-                        .discontinued(rs.getDate("discontinued") == null ? null : new DateTime(rs.getDate("discontinued")))
-                        .company(new Company(rs.getLong("company.id"), rs.getString("company.name")))
-                        .build();
-
-                computers.add(computer);
-            }
-
-            rs.close();
-            stmt.close();
-
-            stmt = conn.prepareStatement(sql2.toString());
-            if(searchString != null) {
-                stmt.setString(1,searchString);
-                stmt.setString(2,searchString);
-            }
-
-            rs = stmt.executeQuery();
-
-            rs.first();
-
-            totalCount = rs.getInt("count");
-
-
-        } catch (SQLException se) {
-            logger.warn("Error in SQL query:" + se.getMessage());
-            throw new DataAccessResourceFailureException("Error in SQL query:" + se.getMessage());
-        } finally {
-           closeObjects(stmt,rs);
+        //Sort computer
+        switch(sort) {
+            case 0:
+                sql.append(COMPUTER_ASC).append(", ").append(INTRODUCED_ASC).append(", ").append(DISCONTINUED_ASC).append(", ").append(COMPANY_ASC);
+                break;
+            case 1:
+                sql.append(COMPUTER_DESC).append(", ").append(INTRODUCED_ASC).append(", ").append(DISCONTINUED_ASC).append(", ").append(COMPANY_ASC);
+                break;
+            case 2:
+                sql.append(INTRODUCED_ASC).append(", ").append(COMPUTER_ASC).append(", ").append(DISCONTINUED_ASC).append(", ").append(COMPANY_ASC);
+                break;
+            case 3:
+                sql.append(INTRODUCED_DESC).append(", ").append(COMPUTER_ASC).append(", ").append(DISCONTINUED_ASC).append(", ").append(COMPANY_ASC);
+                break;
+            case 4:
+                sql.append(DISCONTINUED_ASC).append(", ").append(COMPUTER_ASC).append(", ").append(INTRODUCED_ASC).append(", ").append(COMPANY_ASC);
+                break;
+            case 5:
+                sql.append(DISCONTINUED_DESC).append(", ").append(COMPUTER_ASC).append(", ").append(INTRODUCED_ASC).append(", ").append(COMPANY_ASC);
+                break;
+            case 6:
+                sql.append(COMPANY_ASC).append(", ").append(COMPUTER_ASC).append(", ").append(INTRODUCED_ASC).append(", ").append(DISCONTINUED_ASC);
+                break;
+            case 7:
+                sql.append(COMPANY_DESC).append(", ").append(COMPUTER_ASC).append(", ").append(INTRODUCED_ASC).append(", ").append(DISCONTINUED_ASC);
+                break;
         }
+
+        if(limit > 0)
+            sql.append("LIMIT ").append(limit).append(" ");
+        if(offset > 0)
+            sql.append("OFFSET ").append(offset);
+
+        computers =namedParameterJdbcTemplate.query(sql.toString(), new MapSqlParameterSource("searchString",searchString),new ComputerRowMapper());
+
+        computerPage.setItems(computers);
+
+        totalCount = namedParameterJdbcTemplate.queryForObject(sql2.toString(), new MapSqlParameterSource("searchString",searchString),
+            new RowMapper<Integer>() {
+                @Override
+                public Integer mapRow(ResultSet rs, int i) throws SQLException {
+                    return rs.getInt("count");
+                }
+            }
+        );
 
         logger.debug("Found " + computers.size() + " elements");
 
@@ -231,39 +183,13 @@ public class ComputerDaoImpl implements ComputerDao {
     public Computer retrieve(Long computerId) {
         logger.debug("Entering retrieve");
 
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
         Computer computer = null;
 
-        Connection conn = DataSourceUtils.getConnection(ds);
+        logger.debug("Creating statement...");
 
-        try {
-            logger.debug("Creating statement...");
+        final String sql = "SELECT computer.id, computer.name, introduced, discontinued, company.id, company.name FROM computer LEFT JOIN company on computer.company_id = company.id WHERE computer.id= :id ";
 
-            String sql = "SELECT computer.id, computer.name, introduced, discontinued, company.id, company.name FROM computer LEFT JOIN company on computer.company_id = company.id WHERE computer.id=?";
-            stmt = conn.prepareStatement(sql);
-            stmt.setLong(1, computerId);
-            rs = stmt.executeQuery();
-
-            // Extract data from result set
-            while(rs.next()) {
-                //Create result
-                computer = Computer.builder()
-                        .id(rs.getLong("id"))
-                        .name(rs.getString("computer.name"))
-                        .introduced(rs.getDate("introduced") == null ? null : new DateTime(rs.getDate("introduced")))
-                        .discontinued(rs.getDate("discontinued") == null ? null : new DateTime(rs.getDate("discontinued")))
-                        .company(new Company(rs.getLong("company.id"), rs.getString("company.name")))
-                        .build();
-                break;
-            }
-
-        } catch (SQLException se) {
-            logger.warn("Error in SQL query:" + se.getMessage());
-            throw new DataAccessResourceFailureException("Error in SQL query:" + se.getMessage());
-        } finally {
-            closeObjects(stmt,rs);
-        }
+        computer = namedParameterJdbcTemplate.queryForObject(sql,new MapSqlParameterSource("id",computerId),new ComputerRowMapper());
 
         logger.debug("Leaving retrieve");
         return computer;
@@ -273,39 +199,24 @@ public class ComputerDaoImpl implements ComputerDao {
     public void update(Computer computer) {
         logger.debug("Entering update");
 
-        PreparedStatement stmt = null;
+        final String sql = "UPDATE computer SET name= :computerName, introduced= :introduced, discontinued= :discontinued, company_id= :companyId WHERE id= :id";
 
-        Connection conn = DataSourceUtils.getConnection(ds);
+        MapSqlParameterSource params = new MapSqlParameterSource();
 
-        try {
-            logger.debug("Creating statement...");
+        params.addValue("id",computer.getId());
+        params.addValue("computerName",computer.getName());
+        if (computer.getIntroduced() != null)
+            params.addValue("introduced", new java.sql.Date(computer.getIntroduced().getMillis()));
+        else
+            params.addValue("introduced", null, Types.TIMESTAMP);
+        if (computer.getDiscontinued() != null)
+            params.addValue("discontinued", new java.sql.Date(computer.getDiscontinued().getMillis()));
+        else
+            params.addValue("discontinued", null, Types.TIMESTAMP);
+        params.addValue("companyId", computer.getCompany() == null ? null : computer.getCompany().getId(), Types.BIGINT);
 
-            String sql = "UPDATE computer SET name=?, introduced=?, discontinued=?, company_id=? WHERE id=?";
-            stmt = conn.prepareStatement(sql);
-            stmt.setString(1, computer.getName());
 
-            if(computer.getIntroduced() != null)
-                stmt.setDate(2, new java.sql.Date(computer.getIntroduced().getMillis()));
-            else
-                stmt.setNull(2,Types.TIMESTAMP);
-            if(computer.getDiscontinued() != null)
-                stmt.setDate(3, new java.sql.Date(computer.getDiscontinued().getMillis()));
-            else
-                stmt.setNull(3, Types.TIMESTAMP);
-            if(computer.getCompany() != null)
-                stmt.setLong(4, computer.getCompany().getId());
-            else
-                stmt.setNull(4, Types.BIGINT);
-            stmt.setLong(5, computer.getId());
-
-            stmt.executeUpdate();
-
-        } catch (SQLException se) {
-            logger.warn("Error in SQL query:" + se.getMessage());
-            throw new DataAccessResourceFailureException("Error in SQL query:" + se.getMessage());
-        } finally {
-            closeObjects(stmt);
-        }
+        namedParameterJdbcTemplate.update(sql, params);
 
         logger.debug("Leaving update");
     }
@@ -314,67 +225,42 @@ public class ComputerDaoImpl implements ComputerDao {
     public void delete(List<Long> computerIds) {
         logger.debug("Entering delete");
 
-        PreparedStatement stmt = null;
-        String computers = "";
-        Connection conn = DataSourceUtils.getConnection(ds);
-
         if(computerIds == null || computerIds.isEmpty()) {
             logger.debug("Nothing to delete");
             return;
         }
 
-        try {
-            logger.debug("Creating statement...");
+        final StringBuilder sql = new StringBuilder("DELETE FROM computer WHERE ");
 
-            StringBuilder sql = new StringBuilder();
+        if(computerIds.size() == 1)
+            sql.append("id = ?");
+        else {
 
-            if(computerIds.size() == 1)
-                sql.append("DELETE FROM computer WHERE id = ?");
-            else {
-
-                sql.append("DELETE FROM computer WHERE id IN (");
-                for(int i=0;i<computerIds.size();i++) {
-                    sql.append("?");
-                    if(i < computerIds.size()-1)
-                        sql.append(", ");
-                }
-                sql.append(")");
-            }
-
-            stmt = conn.prepareStatement(sql.toString());
-
+            sql.append("id IN (");
             for(int i=0;i<computerIds.size();i++) {
-                stmt.setLong(i+1, computerIds.get(i));
+                sql.append("?");
+                if(i < computerIds.size()-1)
+                    sql.append(", ");
             }
-
-            stmt.executeUpdate();
-
-        } catch (SQLException se) {
-            logger.warn("Error in SQL query:" + se.getMessage());
-            throw new DataAccessResourceFailureException("Error in SQL query:" + se.getMessage());
-        } finally {
-            closeObjects(stmt);
+            sql.append(")");
         }
+
+        jdbcTemplate.update(sql.toString(),computerIds.toArray());
 
         logger.debug("Leaving delete");
     }
 
-    private void closeObjects(Statement stmt) {
-        closeObjects(stmt,null);
-    }
+    private static class ComputerRowMapper implements RowMapper<Computer> {
 
-    private void closeObjects(Statement stmt, ResultSet rs) {
-        // Clean-up environment
-        try {
-            if (stmt != null)
-                stmt.close();
-            if (rs != null)
-                rs.close();
-        } catch (SQLException e) {
-            logger.warn("Cannot close JDBC related objects:" + e.getMessage());
-            e.printStackTrace();
-            throw new CleanupFailureDataAccessException("Cannot close JDBC related objects",e);
+        @Override
+        public Computer mapRow(ResultSet rs, int i) throws SQLException {
+            return Computer.builder()
+                    .id(rs.getLong("id"))
+                    .name(rs.getString("computer.name"))
+                    .introduced(rs.getDate("introduced") == null ? null : new DateTime(rs.getDate("introduced")))
+                    .discontinued(rs.getDate("discontinued") == null ? null : new DateTime(rs.getDate("discontinued")))
+                    .company(new Company(rs.getLong("company.id"), rs.getString("company.name")))
+                    .build();
         }
     }
-
 }

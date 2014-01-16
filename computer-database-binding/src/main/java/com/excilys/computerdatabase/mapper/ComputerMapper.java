@@ -41,7 +41,7 @@ public class ComputerMapper {
     private ResourceBundleMessageSource messageSource;
 
     public Computer fromDto(ComputerDto dto) {
-        logger.debug("Entering fromDto");
+        logger.debug("Entering fromDto with ComputerDto " + dto.toString());
         if(dto == null)
             return null;
 
