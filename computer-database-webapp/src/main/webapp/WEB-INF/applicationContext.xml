@@ -20,11 +20,6 @@
         <property name="defaultLocale" value="fr_FR" />
     </bean>
 
-    <!-- Import datasource resource -->
-    <import resource="classpath:datasource-context.xml"/>
-
-    <!-- Import contexts of other modules -->
-    <import resource="classpath:persistence-context.xml"/>
     <import resource="classpath:service-context.xml"/>
     <import resource="classpath:binding-context.xml"/>
 

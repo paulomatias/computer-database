@@ -11,11 +11,11 @@ import com.excilys.computerdatabase.service.LogService;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Created with IntelliJ IDEA.
+ * Project: computer-database
+ * Package: com.excilys.computerdatabase.service.impl
  * User: lortola
  * Date: 31/12/13
- * Time: 11:49
- * To change this template use File | Settings | File Templates.
+ * Description: N/A
  */
 @Service
 @Transactional(readOnly = true)
@@ -24,7 +24,8 @@ public class LogServiceImpl implements LogService {
     @Autowired
     private LogDao logDao;
 
-    private static Logger logger = LoggerFactory.getLogger(LogServiceImpl.class);
+    @SuppressWarnings("unused")
+	private static Logger logger = LoggerFactory.getLogger(LogServiceImpl.class);
 
     @Override
     @Transactional(readOnly = false)

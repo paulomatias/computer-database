@@ -1,25 +1,18 @@
 package com.excilys.computerdatabase.mapper;
 
-import com.excilys.computerdatabase.domain.Computer;
-import com.excilys.computerdatabase.dto.ComputerDto;
-import com.excilys.computerdatabase.service.CompanyService;
-import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.context.support.ResourceBundleMessageSource;
-import org.springframework.format.datetime.DateFormatter;
-import org.springframework.format.datetime.joda.DateTimeFormatterFactory;
 import org.springframework.stereotype.Component;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import com.excilys.computerdatabase.domain.Computer;
+import com.excilys.computerdatabase.dto.ComputerDto;
+import com.excilys.computerdatabase.service.CompanyService;
 
 /**
  * Project: computer-database
@@ -41,10 +34,10 @@ public class ComputerMapper {
     private ResourceBundleMessageSource messageSource;
 
     public Computer fromDto(ComputerDto dto) {
-        logger.debug("Entering fromDto with ComputerDto " + dto.toString());
-        if(dto == null)
+    	if(dto == null)
             return null;
-
+    	logger.debug("Entering fromDto with ComputerDto " + dto.toString());
+        
         DateTimeFormatter dtf = DateTimeFormat.forPattern(messageSource.getMessage("form.date.pattern",null,LocaleContextHolder.getLocale()));
 
         Computer.Builder cb = Computer.builder();

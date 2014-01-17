@@ -1,12 +1,12 @@
 package com.excilys.computerdatabase.persistence;
 
 
-import java.sql.SQLException;
 import java.util.List;
+
+import org.springframework.dao.DataAccessException;
 
 import com.excilys.computerdatabase.common.Page;
 import com.excilys.computerdatabase.domain.Computer;
-import org.springframework.dao.DataAccessException;
 
 /**
  * Project: computer-database

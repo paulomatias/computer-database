@@ -1,12 +1,7 @@
 package com.excilys.computerdatabase.service.impl;
 
-import com.excilys.computerdatabase.common.LogOperationType;
-import com.excilys.computerdatabase.common.Page;
-import com.excilys.computerdatabase.domain.Computer;
-import com.excilys.computerdatabase.domain.Log;
-import com.excilys.computerdatabase.persistence.ComputerDao;
-import com.excilys.computerdatabase.persistence.LogDao;
-import com.excilys.computerdatabase.service.ComputerService;
+import java.util.List;
+
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +9,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import com.excilys.computerdatabase.common.LogOperationType;
+import com.excilys.computerdatabase.common.Page;
+import com.excilys.computerdatabase.domain.Computer;
+import com.excilys.computerdatabase.domain.Log;
+import com.excilys.computerdatabase.persistence.ComputerDao;
+import com.excilys.computerdatabase.persistence.LogDao;
+import com.excilys.computerdatabase.service.ComputerService;
 
 /**
  * Project: computer-database
@@ -33,7 +34,8 @@ public class ComputerServiceImpl implements ComputerService {
     @Autowired
     private LogDao logDao;
 
-    private static Logger logger = LoggerFactory.getLogger(ComputerServiceImpl.class);
+    @SuppressWarnings("unused")
+	private static Logger logger = LoggerFactory.getLogger(ComputerServiceImpl.class);
 
     @Override
     @Transactional(readOnly = false)
@@ -66,8 +68,8 @@ public class ComputerServiceImpl implements ComputerService {
     @Override
     @Transactional(readOnly = false)
     public void update(Computer computer) {
-        boolean result = false;
-        computerDao.update(computer);
+        
+    	computerDao.update(computer);
         Log log = Log.builder().operationDate(DateTime.now())
                 .operationType(LogOperationType.COMPUTER_UPDATE)
                 .description("id:"+computer.getId()).build();
@@ -77,8 +79,8 @@ public class ComputerServiceImpl implements ComputerService {
     @Override
     @Transactional(readOnly = false)
     public void delete(List<Long> computerIds) {
-        boolean result = false;
-        computerDao.delete(computerIds);
+        
+    	computerDao.delete(computerIds);
         Log log = Log.builder().operationDate(DateTime.now())
                 .operationType(LogOperationType.COMPUTER_UPDATE)
                 .description("ids:"+computerIds.toString()).build();

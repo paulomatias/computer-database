@@ -2,18 +2,16 @@ package com.excilys.computerdatabase.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.ControllerAdvice;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.ModelAndView;
 
 /**
- * Created with IntelliJ IDEA.
+ * Project: computer-database
+ * Package: com.excilys.computerdatabase.controller
  * User: lortola
  * Date: 10/01/14
- * Time: 17:18
- * To change this template use File | Settings | File Templates.
+ * Description: N/A
  */
 @Controller
 @RequestMapping("/error")

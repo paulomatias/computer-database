@@ -1,7 +1,5 @@
 package com.excilys.computerdatabase.validator;
 
-import com.excilys.computerdatabase.domain.Computer;
-import com.excilys.computerdatabase.dto.ComputerDto;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
@@ -13,6 +11,8 @@ import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
+
+import com.excilys.computerdatabase.dto.ComputerDto;
 
 /**
  * Project: computer-database
@@ -39,7 +39,6 @@ public class ComputerValidator implements Validator {
     }
 
     @Override
-    @SuppressWarnings("unused")
     public void validate(Object o, Errors errors) {
 
         DateTimeFormatter dtf = DateTimeFormat.forPattern(messageSource.getMessage("form.date.pattern", null, LocaleContextHolder.getLocale()));

@@ -13,6 +13,24 @@
         <dependency>
             <groupId>com.excilys</groupId>
             <artifactId>computerdatabase-core</artifactId>
+            <exclusions>
+            	<exclusion>
+            		<artifactId>hibernate-core</artifactId>
+            		<groupId>org.hibernate</groupId>
+            	</exclusion>
+            	<exclusion>            		
+            		<artifactId>slf4j-api</artifactId>
+            		<groupId>org.slf4j</groupId>
+            	</exclusion>
+            	<exclusion>            		
+            		<artifactId>logback-classic</artifactId>
+            		<groupId>ch.qos.logback</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>joda-time</artifactId>
+            		<groupId>joda-time</groupId>
+            	</exclusion>
+            </exclusions>
         </dependency>
         <!-- Mysql connector -->
         <dependency>
@@ -34,6 +52,12 @@
         <dependency>
             <groupId>com.jolbox</groupId>
             <artifactId>bonecp</artifactId>
+            <exclusions>
+            	<exclusion>            		
+            		<artifactId>slf4j-api</artifactId>
+            		<groupId>org.slf4j</groupId>
+            	</exclusion>
+           	</exclusions>
         </dependency>
         <!-- Spring Framework -->
         <dependency>
@@ -46,11 +70,7 @@
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
-            <artifactId>spring-jdbc</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-tx</artifactId>
+            <artifactId>spring-orm</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -66,11 +86,31 @@
             <groupId>org.slf4j</groupId>
             <artifactId>jcl-over-slf4j</artifactId>
             <scope>runtime</scope>
+            <exclusions>
+            	<exclusion>            		
+            		<artifactId>slf4j-api</artifactId>
+            		<groupId>org.slf4j</groupId>
+            	</exclusion>
+           	</exclusions>
         </dependency>
         <!-- Joda Time -->
         <dependency>
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
         </dependency>
+        <!-- Hibernate -->
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.javassist</groupId>
+            <artifactId>javassist</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jadira.usertype</groupId>
+            <artifactId>usertype.jodatime</artifactId>
+        </dependency>
+
     </dependencies>
 </project>

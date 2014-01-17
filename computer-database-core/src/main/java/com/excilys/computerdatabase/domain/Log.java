@@ -1,19 +1,52 @@
 package com.excilys.computerdatabase.domain;
 
-import com.excilys.computerdatabase.common.LogOperationType;
+import java.io.Serializable;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+import org.hibernate.annotations.Type;
 import org.joda.time.DateTime;
 
+import com.excilys.computerdatabase.common.LogOperationType;
+
 /**
- * Created with IntelliJ IDEA.
+ * Project: computer-database
+ * Package: com.excilys.computerdatabase.domain
  * User: lortola
  * Date: 31/12/13
- * Time: 11:23
- * To change this template use File | Settings | File Templates.
+ * Description: N/A
  */
-public class Log {
+@Entity
+@Table(name="log")
+public class Log implements Serializable {
+    
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
+	
+	/*
+     * Attributes
+     */
+	@Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name="id")
     private Long id;
+    @Column(name="operation_type")
+    @Enumerated(EnumType.STRING)
     private LogOperationType operationType;
+    @Column(name="operation_date")
+    @Type(type="org.jadira.usertype.dateandtime.joda.PersistentDateTime")
     private DateTime operationDate;
+    @Column(name="description", columnDefinition = "TEXT")
     private String description;
 
 

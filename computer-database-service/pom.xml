@@ -12,17 +12,72 @@
         <!-- Project modules -->
         <dependency>
             <groupId>com.excilys</groupId>
+            <artifactId>computerdatabase-core</artifactId>
+            <exclusions>
+            	<exclusion>
+            		<artifactId>hibernate-core</artifactId>
+            		<groupId>org.hibernate</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>joda-time</artifactId>
+            		<groupId>joda-time</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>logback-classic</artifactId>
+            		<groupId>ch.qos.logback</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>slf4j-api</artifactId>
+            		<groupId>org.slf4j</groupId>
+            	</exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.excilys</groupId>
             <artifactId>computerdatabase-persistence</artifactId>
+            <exclusions>
+            	<exclusion>
+            		<artifactId>computerdatabase-core</artifactId>
+            		<groupId>com.excilys</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>slf4j-api</artifactId>
+            		<groupId>org.slf4j</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>logback-classic</artifactId>
+            		<groupId>ch.qos.logback</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>spring-core</artifactId>
+            		<groupId>org.springframework</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>spring-beans</artifactId>
+            		<groupId>org.springframework</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>spring-context</artifactId>
+            		<groupId>org.springframework</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>jcl-over-slf4j</artifactId>
+            		<groupId>org.slf4j</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>joda-time</artifactId>
+            		<groupId>joda-time</groupId>
+            	</exclusion>
+            	<exclusion>
+       				<artifactId>hibernate-core</artifactId>
+       				<groupId>org.hibernate</groupId>
+       			</exclusion>
+            </exclusions>
         </dependency>
         <!-- Logging: Slf4j and Logback -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <scope>runtime</scope>
         </dependency>
         <!-- Spring Framework -->
         <dependency>
@@ -36,7 +91,7 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
-	    <exclusions>
+	    	<exclusions>
                 <exclusion>
                     <groupId>commons-logging</groupId>
                     <artifactId>commons-logging</artifactId>
@@ -46,12 +101,27 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jcl-over-slf4j</artifactId>
-            <scope>runtime</scope>
+            <scope>runtime</scope> 
+            <exclusions>
+            	<exclusion>            		
+            		<artifactId>slf4j-api</artifactId>
+            		<groupId>org.slf4j</groupId>
+            	</exclusion>
+           	</exclusions>           
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-tx</artifactId>
         </dependency>
         <!-- Joda Time -->
         <dependency>
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
         </dependency>
+        <!-- Hibernate -->
+       	<dependency>
+       		<artifactId>hibernate-core</artifactId>
+       		<groupId>org.hibernate</groupId>
+       	</dependency>
     </dependencies>
 </project>

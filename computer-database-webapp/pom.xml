@@ -12,7 +12,109 @@
         <!-- Project modules -->
         <dependency>
             <groupId>com.excilys</groupId>
+            <artifactId>computerdatabase-core</artifactId>
+            <exclusions>
+            	<exclusion>
+            		<artifactId>hibernate-core</artifactId>
+            		<groupId>org.hibernate</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>joda-time</artifactId>
+            		<groupId>joda-time</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>logback-classic</artifactId>
+            		<groupId>ch.qos.logback</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>slf4j-api</artifactId>
+            		<groupId>org.slf4j</groupId>
+            	</exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.excilys</groupId>
+            <artifactId>computerdatabase-service</artifactId>
+            <exclusions>
+            	<exclusion>
+            		<artifactId>computerdatabase-core</artifactId>
+            		<groupId>com.excilys</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>spring-context</artifactId>
+            		<groupId>org.springframework</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>joda-time</artifactId>
+            		<groupId>joda-time</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>spring-core</artifactId>
+            		<groupId>org.springframework</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>slf4j-api</artifactId>
+            		<groupId>org.slf4j</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>spring-beans</artifactId>
+            		<groupId>org.springframework</groupId>
+            	</exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.excilys</groupId>
             <artifactId>computerdatabase-binding</artifactId>
+            <exclusions>
+            	<exclusion>
+            		<artifactId>computerdatabase-core</artifactId>
+            		<groupId>com.excilys</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>computerdatabase-service</artifactId>
+            		<groupId>com.excilys</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>hibernate-validator</artifactId>
+            		<groupId>org.hibernate</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>spring-context</artifactId>
+            		<groupId>org.springframework</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>validation-api</artifactId>
+            		<groupId>javax.validation</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>jcl-over-slf4j</artifactId>
+            		<groupId>org.slf4j</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>hibernate-core</artifactId>
+            		<groupId>org.hibernate</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>joda-time</artifactId>
+            		<groupId>joda-time</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>logback-classic</artifactId>
+            		<groupId>ch.qos.logback</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>spring-core</artifactId>
+            		<groupId>org.springframework</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>slf4j-api</artifactId>
+            		<groupId>org.slf4j</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>spring-beans</artifactId>
+            		<groupId>org.springframework</groupId>
+            	</exclusion>
+            </exclusions>
         </dependency>
         <!-- Servlet api (provided by servlet container) -->
         <dependency>
@@ -28,6 +130,12 @@
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <scope>runtime</scope>
+            <exclusions>
+            	<exclusion>
+            		<artifactId>slf4j-api</artifactId>
+            		<groupId>org.slf4j</groupId>
+            	</exclusion>
+            </exclusions>
         </dependency>
         <!-- JSTL -->
         <dependency>
@@ -55,6 +163,12 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jcl-over-slf4j</artifactId>
+            <exclusions>
+            	<exclusion>
+            		<artifactId>slf4j-api</artifactId>
+            		<groupId>org.slf4j</groupId>
+            	</exclusion>
+            </exclusions>
         </dependency>
         <!-- Spring MVC -->
         <dependency>
