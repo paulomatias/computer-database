@@ -2,8 +2,15 @@ package com.excilys.computerdatabase.persistence.impl;
 
 import java.util.List;
 
+import org.hibernate.Criteria;
+import org.hibernate.FetchMode;
 import org.hibernate.Query;
 import org.hibernate.SessionFactory;
+import org.hibernate.criterion.MatchMode;
+import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Projections;
+import org.hibernate.criterion.Restrictions;
+import org.hibernate.sql.JoinType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,15 +32,6 @@ import com.excilys.computerdatabase.persistence.ComputerDao;
 public class ComputerDaoImpl implements ComputerDao {
 
     private static Logger logger = LoggerFactory.getLogger(ComputerDaoImpl.class);
-
-    private static final String COMPUTER_ASC = "computer.name ASC ";
-    private static final String INTRODUCED_ASC = "CASE WHEN (computer.introduced IS NULL OR computer.introduced = '0000-00-00 00:00:00') THEN 1 ELSE 0 END ASC, computer.introduced ASC ";
-    private static final String DISCONTINUED_ASC = "CASE WHEN (computer.discontinued IS NULL OR computer.discontinued = '0000-00-00 00:00:00') THEN 1 ELSE 0 END ASC, computer.discontinued ASC ";
-    private static final String COMPANY_ASC = "CASE WHEN company.name IS NULL THEN 1 ELSE 0 END ASC, company.name ASC ";
-    private static final String COMPUTER_DESC = "computer.name DESC ";
-    private static final String INTRODUCED_DESC = "CASE WHEN (computer.introduced IS NULL OR computer.introduced = '0000-00-00 00:00:00') THEN 1 ELSE 0 END ASC, computer.introduced DESC ";
-    private static final String DISCONTINUED_DESC = "CASE WHEN (computer.discontinued IS NULL OR computer.discontinued = '0000-00-00 00:00:00') THEN 1 ELSE 0 END ASC, computer.discontinued DESC ";
-    private static final String COMPANY_DESC = "CASE WHEN company.name IS NULL THEN 1 ELSE 0 END ASC, company.name DESC ";
 
     @Autowired
     private SessionFactory sessionFactory;
@@ -64,66 +62,71 @@ public class ComputerDaoImpl implements ComputerDao {
                                         .toString());
 
         List<Computer> computers = null;
-        int count = 0, totalCount = 0;
+        int totalCount = 0;
         Page<Computer> computerPage = new Page<Computer>();
         computerPage.setSearchString(searchString);
         computerPage.setSort(sort);
 
-        if(searchString != null)
-            searchString = new StringBuilder().append("%").append(searchString).append("%").toString();
+        //Results query
+        Criteria criteria = sessionFactory.getCurrentSession().createCriteria(Computer.class);
+        criteria.setFetchMode("company", FetchMode.JOIN).createAlias("company","company", JoinType.LEFT_OUTER_JOIN);
 
+        //Result Count query
+        Criteria criteriaCount = sessionFactory.getCurrentSession().createCriteria(Computer.class);
+        criteriaCount.setFetchMode("company", FetchMode.JOIN).createAlias("company", "company", JoinType.LEFT_OUTER_JOIN);
 
-        final StringBuilder sql = new StringBuilder();
-        sql.append("SELECT computer FROM Computer computer LEFT JOIN computer.company company ");
-
-        if(searchString != null)
-            sql.append("WHERE computer.name LIKE :searchString OR company.name LIKE :searchString ");
-        sql.append("ORDER BY ");
-
-        final StringBuilder sql2 = new StringBuilder("SELECT count(*) FROM Computer computer LEFT JOIN computer.company company ");
-        if(searchString != null)
-            sql2.append("WHERE computer.name LIKE :searchString OR company.name LIKE :searchString ");
+        //Search restriction
+        if(searchString != null && !searchString.isEmpty()) {
+            criteria.add(Restrictions.disjunction().add(Restrictions.like("name", searchString, MatchMode.ANYWHERE))
+                    .add(Restrictions.like("company.name", searchString, MatchMode.ANYWHERE)));
+            criteriaCount.add(Restrictions.disjunction().add(Restrictions.like("name", searchString, MatchMode.ANYWHERE))
+                    .add(Restrictions.like("company.name", searchString, MatchMode.ANYWHERE)));
+        }
 
         //Sort computer
         switch(sort) {
             case 0:
-                sql.append(COMPUTER_ASC).append(", ").append(INTRODUCED_ASC).append(", ").append(DISCONTINUED_ASC).append(", ").append(COMPANY_ASC);
+                criteria.addOrder(Order.asc("name"));
                 break;
             case 1:
-                sql.append(COMPUTER_DESC).append(", ").append(INTRODUCED_ASC).append(", ").append(DISCONTINUED_ASC).append(", ").append(COMPANY_ASC);
+                criteria.addOrder(Order.desc("name"));
                 break;
             case 2:
-                sql.append(INTRODUCED_ASC).append(", ").append(COMPUTER_ASC).append(", ").append(DISCONTINUED_ASC).append(", ").append(COMPANY_ASC);
+                criteria.addOrder(Order.asc("introduced"));
                 break;
             case 3:
-                sql.append(INTRODUCED_DESC).append(", ").append(COMPUTER_ASC).append(", ").append(DISCONTINUED_ASC).append(", ").append(COMPANY_ASC);
+                criteria.addOrder(Order.desc("introduced"));
                 break;
             case 4:
-                sql.append(DISCONTINUED_ASC).append(", ").append(COMPUTER_ASC).append(", ").append(INTRODUCED_ASC).append(", ").append(COMPANY_ASC);
+                criteria.addOrder(Order.asc("discontinued"));
                 break;
             case 5:
-                sql.append(DISCONTINUED_DESC).append(", ").append(COMPUTER_ASC).append(", ").append(INTRODUCED_ASC).append(", ").append(COMPANY_ASC);
+                criteria.addOrder(Order.desc("discontinued"));
                 break;
             case 6:
-                sql.append(COMPANY_ASC).append(", ").append(COMPUTER_ASC).append(", ").append(INTRODUCED_ASC).append(", ").append(DISCONTINUED_ASC);
+                criteria.addOrder(Order.asc("company.name"));
                 break;
             case 7:
-                sql.append(COMPANY_DESC).append(", ").append(COMPUTER_ASC).append(", ").append(INTRODUCED_ASC).append(", ").append(DISCONTINUED_ASC);
+                criteria.addOrder(Order.desc("company.name"));
                 break;
         }
 
-        Query query = sessionFactory.getCurrentSession().createQuery(sql.toString()).setParameter("searchString",searchString).setMaxResults(limit).setFirstResult(offset);
+        //Pagination
+        criteria.setFirstResult(offset);
+        if(limit>0) {
+            criteria.setMaxResults(limit).setFetchSize(limit);
+        }
 
-        computers = query.list();
+        computers = criteria.list();
 
         computerPage.setItems(computers);
 
-        totalCount = ((Long)(sessionFactory.getCurrentSession().createQuery(sql2.toString()).setParameter("searchString",searchString).iterate().next())).intValue();
+        totalCount = ((Long)criteriaCount.setProjection(Projections.rowCount()).uniqueResult()).intValue();
 
         logger.debug("Found " + computers.size() + " elements");
 
         computerPage.setItems(computers);
-        computerPage.setRecordCount(count);
+        computerPage.setRecordCount(computers.size());
 
         if(limit > 0) {
             computerPage.setLimit(limit);
