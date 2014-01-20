@@ -23,6 +23,7 @@
         <hibernate.version>4.3.0.Final</hibernate.version>
         <javassist.version>3.18.1-GA</javassist.version>
         <jadira.version>2.0.1</jadira.version>
+        <querydsl.version>3.3.0</querydsl.version>
     </properties>
     <modules>
 	    <module>computer-database-core</module>
@@ -190,6 +191,22 @@
                 <groupId>org.jadira.usertype</groupId>
                 <artifactId>usertype.jodatime</artifactId>
                 <version>${jadira.version}</version>
+            </dependency>
+            <!-- QueryDSL -->
+            <dependency>
+                <groupId>com.mysema.querydsl</groupId>
+                <artifactId>querydsl-apt</artifactId>
+                <version>${querydsl.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.mysema.querydsl</groupId>
+                <artifactId>querydsl-jpa</artifactId>
+                <version>${querydsl.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-log4j12</artifactId>
+                <version>${slf4j.version}</version>
             </dependency>
 
         </dependencies>

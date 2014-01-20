@@ -2,7 +2,11 @@ package com.excilys.computerdatabase.persistence.impl;
 
 import com.excilys.computerdatabase.common.Page;
 import com.excilys.computerdatabase.domain.Computer;
+import com.excilys.computerdatabase.domain.QCompany;
+import com.excilys.computerdatabase.domain.QComputer;
 import com.excilys.computerdatabase.persistence.ComputerDao;
+import com.mysema.query.jpa.impl.JPADeleteClause;
+import com.mysema.query.jpa.impl.JPAQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
@@ -11,8 +15,6 @@ import org.springframework.stereotype.Repository;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceContextType;
-import javax.persistence.Query;
-import javax.persistence.criteria.*;
 import java.util.List;
 
 /**
@@ -62,65 +64,61 @@ public class ComputerDaoImpl implements ComputerDao {
         computerPage.setSort(sort);
 
         //Results query
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<Computer> criteriaQuery = cb.createQuery(Computer.class);
-        Root<Computer> root = criteriaQuery.from(Computer.class);
-        root.join("company", JoinType.LEFT);
+        JPAQuery query = new JPAQuery(em);
+        query.from(QComputer.computer)
+             .leftJoin(QComputer.computer.company,QCompany.company);
 
         //Result Count query
-        CriteriaQuery<Long> criteriaQuery2 = cb.createQuery(Long.class);
-        Root<Computer> root2 = criteriaQuery2.from(Computer.class);
-        root2.join("company", JoinType.LEFT);
+        JPAQuery query2 = new JPAQuery(em);
+        query2.from(QComputer.computer)
+              .leftJoin(QComputer.computer.company, QCompany.company);
 
         //Search restriction
-        if(searchString != null && !searchString.isEmpty()) {
-            Predicate clause = cb.or(cb.like(root.<String>get("name"), searchString),cb.like(root.<String>get("computer.name"), searchString));
-            criteriaQuery.where(clause);
-            criteriaQuery2.where(clause);
+        if(searchString != null && !searchString.trim().isEmpty()) {
+            query.where(QComputer.computer.name.toLowerCase().contains(searchString).or(QCompany.company.name.toLowerCase().contains(searchString)));
+
+            query2.where(QComputer.computer.name.toLowerCase().contains(searchString).or(QCompany.company.name.toLowerCase().contains(searchString)));
+
         }
 
         //Sort computer
         switch(sort) {
             case 0:
-                criteriaQuery.orderBy(cb.asc(root.get("name")));
+                query.orderBy(QComputer.computer.name.asc());
                 break;
             case 1:
-                criteriaQuery.orderBy(cb.desc(root.get("name")));
+                query.orderBy(QComputer.computer.name.desc());
                 break;
             case 2:
-                criteriaQuery.orderBy(cb.asc(root.get("introduced")));
+                query.orderBy(QComputer.computer.introduced.asc());
                 break;
             case 3:
-                criteriaQuery.orderBy(cb.desc(root.get("introduced")));
+                query.orderBy(QComputer.computer.introduced.desc());
                 break;
             case 4:
-                criteriaQuery.orderBy(cb.asc(root.get("discontinued")));
+                query.orderBy(QComputer.computer.discontinued.asc());
                 break;
             case 5:
-                criteriaQuery.orderBy(cb.desc(root.get("discontinued")));
+                query.orderBy(QComputer.computer.discontinued.desc());
                 break;
             case 6:
-                criteriaQuery.orderBy(cb.asc(root.get("company.name")));
+                query.orderBy(QComputer.computer.company.name.asc());
                 break;
             case 7:
-                criteriaQuery.orderBy(cb.desc(root.get("company.name")));
+                query.orderBy(QComputer.computer.company.name.desc());
                 break;
         }
 
         //Pagination
-        Query query = em.createQuery(criteriaQuery.select(root));
-
-        query.setFirstResult(offset);
         if(limit>0) {
-            query.setMaxResults(limit);
+            query.offset(offset).limit(limit);
         }
 
-        computers = query.getResultList();
+        computers = query.fetch().list(QComputer.computer);
 
         computerPage.setItems(computers);
 
-        //Count (executing second query)
-        totalCount = em.createQuery(criteriaQuery2.select(cb.count(root2))).getSingleResult().intValue();
+        totalCount = ((Long)query2.count()).intValue();
 
         logger.debug("Found " + computers.size() + " elements");
 
@@ -147,12 +145,11 @@ public class ComputerDaoImpl implements ComputerDao {
 
         Computer computer = null;
 
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<Computer> criteriaQuery = cb.createQuery(Computer.class);
-        Root<Computer> root = criteriaQuery.from(Computer.class);
-        criteriaQuery.where(cb.equal(root.<Long>get("id"),computerId));
+        JPAQuery query = new JPAQuery(em);
+        query.from(QComputer.computer)
+             .where(QComputer.computer.id.eq(computerId));
 
-        computer = em.createQuery(criteriaQuery.select(root)).getSingleResult();
+        computer = query.uniqueResult(QComputer.computer);
 
         logger.debug("Leaving retrieve");
         return computer;
@@ -172,13 +169,8 @@ public class ComputerDaoImpl implements ComputerDao {
         logger.debug("Entering delete");
 
 
-
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaDelete<Computer> criteriaDelete = cb.createCriteriaDelete(Computer.class);
-        Root<Computer> root = criteriaDelete.from(Computer.class);
-        criteriaDelete.where(root.<Long>get("id").in(computerIds));
-
-        em.createQuery(criteriaDelete).executeUpdate();
+        JPADeleteClause query = new JPADeleteClause(em,QComputer.computer);
+        query.where(QComputer.computer.id.in(computerIds)).execute();
 
         logger.debug("Leaving delete");
     }
