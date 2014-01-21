@@ -1,12 +1,11 @@
 package com.excilys.computerdatabase.persistence;
 
 
-import java.util.List;
-
-import org.springframework.dao.DataAccessException;
-
-import com.excilys.computerdatabase.common.Page;
 import com.excilys.computerdatabase.domain.Computer;
+import com.excilys.computerdatabase.persistence.custom.ComputerDaoCustom;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.repository.CrudRepository;
 
 /**
  * Project: computer-database
@@ -15,12 +14,6 @@ import com.excilys.computerdatabase.domain.Computer;
  * Date: 15/11/13
  * Description: N/A
  */
-public interface ComputerDao {
-
-    public Computer create(Computer computer) throws DataAccessException;
-    public Page<Computer> retrieveAll();
-    public Page<Computer> retrievePage(int offset, int limit, String searchString, int sort);
-    public Computer retrieve(Long computerId);
-    public void update(Computer computer);
-    public void delete(List<Long> computerIds);
+public interface ComputerDao extends CrudRepository<Computer,Long>, ComputerDaoCustom {
+    Page<Computer> findByNameContainingOrCompanyNameContaining(String name, String companyName, Pageable pageable);
 }

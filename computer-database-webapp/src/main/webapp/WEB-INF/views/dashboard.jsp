@@ -6,8 +6,8 @@
 <%@ taglib prefix="joda" uri="http://www.joda.org/joda/time/tags" %>
 
 <section id="main">
-    <div class="test"><fn:link page="${computerPage.currentPage}" searchString="${computerPage.searchString}" action="dashboard" sort="${computerPage.sort}" lang="fr">FR</fn:link>/
-<fn:link page="${computerPage.currentPage}" searchString="${computerPage.searchString}" action="dashboard" sort="${computerPage.sort}" lang="en">EN</fn:link></div>
+    <div class="test"><fn:link page="${computerPage.number}" searchString="${searchString}" action="dashboard" sort="${computerPage.sort}" lang="fr">FR</fn:link>/
+<fn:link page="${computerPage.number}" searchString="${searchString}" action="dashboard" sort="${computerPage.sort}" lang="en">EN</fn:link></div>
     <div class="container">
         <c:if test="${requestScope.submitAdd == true}">
             <div class="alert alert-success table-bordered"><spring:message code="form.computer.add.success" /></div>
@@ -18,12 +18,12 @@
         <c:if test="${requestScope.submitDelete == true}">
             <div class="alert alert-success table-bordered"><spring:message code="form.computer.delete.success" /></div>
         </c:if>
-        <h1 id="homeTitle"><spring:message code="dashboard.computers.found"  arguments="${computerPage.totalCount}" /></h1>
+        <h1 id="homeTitle"><spring:message code="dashboard.computers.found"  arguments="${computerPage.totalElements}" /></h1>
     <div id="actions" class="form-horizontal">
 		<div class="pull-left">
             <form id="searchForm" action="" method="GET">
                 <spring:message code="form.search.name" var="formSearchName"/>
-                <input type="search" id="searchbox" name="search" value="${computerPage.searchString}" class="input-append" placeholder="${formSearchName}" />
+                <input type="search" id="searchbox" name="search" value="${searchString}" class="input-append" placeholder="${formSearchName}" />
                 <spring:message code="form.filter.name" var="formFilterName"/>
                 <input type="submit" id="searchsubmit" value="${formFilterName}" class="btn btn-primary" />
             </form>
@@ -48,24 +48,24 @@
 
                     <th class="editMode" style="width:60px; height: 22px;"><input type="checkbox" id="selectall" style="margin-top: 5px;"/> <span style="vertical-align: top;"> - <a href="#" id="deleteSelected" onclick="$.fn.deleteSelected();"><i class="fa fa-trash-o fa-lg"></i></a></span></th>
                     <th style="width:33%;">
-                        <fn:link page="${computerPage.currentPage}" searchString="${computerPage.searchString}" action="dashboard" sort="${computerPage.sort == 1 ? 0 : 1}">
+                        <fn:link page="${computerPage.number}" searchString="${searchString}" action="dashboard" sort="name" dir="${computerPage.sort.getOrderFor('name').direction == 'ASC' ? 'DESC' : 'ASC'}">
                             <spring:message code="computer.name"/>
                         </fn:link>
                     </th>
                     <th style="width:15%;">
-                        <fn:link page="${computerPage.currentPage}" searchString="${computerPage.searchString}" action="dashboard" sort="${computerPage.sort == 2 ? 3 : 2}">
+                        <fn:link page="${computerPage.number}" searchString="${searchString}" action="dashboard" sort="introduced" dir="${computerPage.sort.getOrderFor('introduced').direction == 'ASC' ? 'DESC' : 'ASC'}">
                         <spring:message code="computer.introduced"/>
                         </fn:link>
                     </th>
                     <!-- Table header for Discontinued Date -->
                     <th style="width:15%;">
-                        <fn:link page="${computerPage.currentPage}" searchString="${computerPage.searchString}" action="dashboard" sort="${computerPage.sort == 4 ? 5 : 4}">
+                        <fn:link page="${computerPage.number}" searchString="${searchString}" action="dashboard" sort="discontinued" dir="${computerPage.sort.getOrderFor('discontinued').direction == 'ASC' ? 'DESC' : 'ASC'}">
                             <spring:message code="computer.discontinued"/>
                         </fn:link>
                     </th>
                     <!-- Table header for Company -->
                     <th style="width:30%;">
-                        <fn:link page="${computerPage.currentPage}" searchString="${computerPage.searchString}" action="dashboard" sort="${computerPage.sort == 6 ? 7 : 6}">
+                        <fn:link page="${computerPage.number}" searchString="${searchString}" action="dashboard" sort="companyName" dir="${computerPage.sort.getOrderFor('companyName').direction == 'ASC' ? 'DESC' : 'ASC'}">
                             <spring:message code="company"/>
                         </fn:link>
                     </th>
@@ -74,7 +74,7 @@
             </thead>
             <!-- Browse attribute computers -->
             <tbody id="results">
-                <c:forEach var="comp" items="${computerPage.items}" >
+                <c:forEach var="comp" items="${computerPage.content}" >
                     <tr>
                         <td class="editMode"><input type="checkbox" name="cb" class="cb" value="${comp.id}"></td>
                         <td><a href="editComputer?id=${comp.id}" onclick="">${comp.name}</a></td>
@@ -87,7 +87,7 @@
             </tbody>
         </table>
         <div class="text-center">
-            <fn:computerPagination totalCount="${computerPage.totalCount}" recordCount="${computerPage.recordCount}" pageCount="${computerPage.pageCount}" currentPage="${computerPage.currentPage}" limit="${computerPage.limit}" searchString="${computerPage.searchString}" sort="${computerPage.sort}" action="dashboard"></fn:computerPagination>
+            <fn:computerPagination totalCount="${computerPage.totalElements}" recordCount="${computerPage.numberOfElements}" pageCount="${computerPage.totalPages}" currentPage="${computerPage.number}" limit="${computerPage.size}" searchString="${searchString}" action="dashboard"></fn:computerPagination>
         </div>
     </div>
 </section>

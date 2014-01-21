@@ -1,8 +1,7 @@
 package com.excilys.computerdatabase.persistence;
 
-import java.util.List;
-
 import com.excilys.computerdatabase.domain.Company;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
  * Project: computer-database
@@ -11,9 +10,6 @@ import com.excilys.computerdatabase.domain.Company;
  * Date: 15/11/13
  * Description: N/A
  */
-public interface CompanyDao {
-
-    public List<Company> retrieveAll();
-	public Company retrieve(Long companyId);
+public interface CompanyDao extends JpaRepository<Company,Long> {
 
 }

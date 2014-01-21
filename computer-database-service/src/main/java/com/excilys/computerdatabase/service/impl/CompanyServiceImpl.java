@@ -31,11 +31,11 @@ public class CompanyServiceImpl implements CompanyService {
 
     @Override
     public List<Company> retrieveAll() {
-        return companyDao.retrieveAll();
+        return companyDao.findAll();
     }
 
     @Override
     public Company retrieve(Long companyId) {
-        return companyDao.retrieve(companyId);
+        return companyDao.findOne(companyId);
     }
 }

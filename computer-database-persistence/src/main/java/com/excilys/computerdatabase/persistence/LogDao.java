@@ -1,6 +1,7 @@
 package com.excilys.computerdatabase.persistence;
 
 import com.excilys.computerdatabase.domain.Log;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
  * Project: computer-database
@@ -9,8 +10,6 @@ import com.excilys.computerdatabase.domain.Log;
  * Date: 31/12/13
  * Description: N/A
  */
-public interface LogDao {
-
-    public Log create(Log log);
+public interface LogDao extends JpaRepository<Log,Long> {
 
 }

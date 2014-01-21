@@ -30,6 +30,6 @@ public class LogServiceImpl implements LogService {
     @Override
     @Transactional(readOnly = false)
     public Log create(Log log) {
-        return logDao.create(log);
+        return logDao.save(log);
     }
 }

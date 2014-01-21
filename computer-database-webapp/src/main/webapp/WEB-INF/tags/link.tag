@@ -4,8 +4,9 @@
 <%@ attribute name="searchString" required="true" type="java.lang.String"%>
 <%@ attribute name="lang" required="false" type="java.lang.String"%>
 <%@ attribute name="action" required="true" type="java.lang.String"%>
-<%@ attribute name="sort" required="true" type="java.lang.Integer"%>
+<%@ attribute name="sort" required="false" type="java.lang.String"%>
+<%@ attribute name="dir" required="false" type="java.lang.String"%>
 
-<a href="${action}?page=${page}&search=${searchString}&sort=${sort}${lang == null ? '' : '&ln='}${lang}">
+<a href="${action}?page=${page}&search=${searchString}${sort == null ? '' : '&sort='}${sort}${dir == null ? '' : '&dir='}${dir}${lang == null ? '' : '&ln='}${lang}">
     <jsp:doBody/>
 </a>
