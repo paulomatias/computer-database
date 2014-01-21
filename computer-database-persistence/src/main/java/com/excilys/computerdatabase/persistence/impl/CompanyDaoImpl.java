@@ -1,15 +1,18 @@
 package com.excilys.computerdatabase.persistence.impl;
 
-import java.util.List;
-
-import org.hibernate.SessionFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
-
 import com.excilys.computerdatabase.domain.Company;
 import com.excilys.computerdatabase.persistence.CompanyDao;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Repository;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.PersistenceContextType;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
+import java.util.List;
 
 /**
  * Project: computer-database
@@ -23,8 +26,8 @@ public class CompanyDaoImpl implements CompanyDao {
 
     private static Logger logger = LoggerFactory.getLogger(CompanyDaoImpl.class);
 
-    @Autowired
-    private SessionFactory sessionFactory;
+    @PersistenceContext(unitName = "computerDatabasePU", type = PersistenceContextType.TRANSACTION)
+    private EntityManager em;
  
     @SuppressWarnings("unchecked")
 	@Override
@@ -32,9 +35,11 @@ public class CompanyDaoImpl implements CompanyDao {
         logger.debug("Entering retrieveAll");
         List<Company> companies = null;
 
-        String jpql = "SELECT c FROM Company c";
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Company> criteriaQuery = cb.createQuery(Company.class);
+        Root<Company> root = criteriaQuery.from(Company.class);
 
-        companies = sessionFactory.getCurrentSession().createQuery(jpql).list();
+        companies = em.createQuery(criteriaQuery.select(root)).getResultList();
 
         logger.debug(new StringBuilder("Found ").append(companies.size()).append(" elements").toString());
 
@@ -48,9 +53,14 @@ public class CompanyDaoImpl implements CompanyDao {
         logger.debug("Entering retrieve");
         Company company = null;
 
-        company = (Company) sessionFactory.getCurrentSession().get(Company.class,companyId);
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Company> criteriaQuery = cb.createQuery(Company.class);
+        Root<Company> root = criteriaQuery.from(Company.class);
+
+        company = em.createQuery(criteriaQuery.select(root).where(cb.equal(root.<Long>get("id"),companyId))).getSingleResult();
 
         logger.debug("Leaving retrieve");
+
         return company;
     }
 

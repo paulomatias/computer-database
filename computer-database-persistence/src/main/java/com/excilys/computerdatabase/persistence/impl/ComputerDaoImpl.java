@@ -1,25 +1,19 @@
 package com.excilys.computerdatabase.persistence.impl;
 
-import java.util.List;
-
-import org.hibernate.Criteria;
-import org.hibernate.FetchMode;
-import org.hibernate.Query;
-import org.hibernate.SessionFactory;
-import org.hibernate.criterion.MatchMode;
-import org.hibernate.criterion.Order;
-import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.Restrictions;
-import org.hibernate.sql.JoinType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
-import org.springframework.stereotype.Repository;
-
 import com.excilys.computerdatabase.common.Page;
 import com.excilys.computerdatabase.domain.Computer;
 import com.excilys.computerdatabase.persistence.ComputerDao;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
+import org.springframework.stereotype.Repository;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.PersistenceContextType;
+import javax.persistence.Query;
+import javax.persistence.criteria.*;
+import java.util.List;
 
 /**
  * Project: computer-database
@@ -33,14 +27,14 @@ public class ComputerDaoImpl implements ComputerDao {
 
     private static Logger logger = LoggerFactory.getLogger(ComputerDaoImpl.class);
 
-    @Autowired
-    private SessionFactory sessionFactory;
+    @PersistenceContext(unitName = "computerDatabasePU", type = PersistenceContextType.TRANSACTION)
+    private EntityManager em;
 
     @Override
     public Computer create(final Computer computer) throws DataAccessException {
         logger.debug("Entering create with object " + computer);
 
-        sessionFactory.getCurrentSession().persist(computer);
+        em.persist(computer);
 
         logger.debug("leaving create");
         return computer;
@@ -68,60 +62,65 @@ public class ComputerDaoImpl implements ComputerDao {
         computerPage.setSort(sort);
 
         //Results query
-        Criteria criteria = sessionFactory.getCurrentSession().createCriteria(Computer.class);
-        criteria.setFetchMode("company", FetchMode.JOIN).createAlias("company","company", JoinType.LEFT_OUTER_JOIN);
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Computer> criteriaQuery = cb.createQuery(Computer.class);
+        Root<Computer> root = criteriaQuery.from(Computer.class);
+        root.join("company", JoinType.LEFT);
 
         //Result Count query
-        Criteria criteriaCount = sessionFactory.getCurrentSession().createCriteria(Computer.class);
-        criteriaCount.setFetchMode("company", FetchMode.JOIN).createAlias("company", "company", JoinType.LEFT_OUTER_JOIN);
+        CriteriaQuery<Long> criteriaQuery2 = cb.createQuery(Long.class);
+        Root<Computer> root2 = criteriaQuery2.from(Computer.class);
+        root2.join("company", JoinType.LEFT);
 
         //Search restriction
         if(searchString != null && !searchString.isEmpty()) {
-            criteria.add(Restrictions.disjunction().add(Restrictions.like("name", searchString, MatchMode.ANYWHERE))
-                    .add(Restrictions.like("company.name", searchString, MatchMode.ANYWHERE)));
-            criteriaCount.add(Restrictions.disjunction().add(Restrictions.like("name", searchString, MatchMode.ANYWHERE))
-                    .add(Restrictions.like("company.name", searchString, MatchMode.ANYWHERE)));
+            Predicate clause = cb.or(cb.like(root.<String>get("name"), searchString),cb.like(root.<String>get("computer.name"), searchString));
+            criteriaQuery.where(clause);
+            criteriaQuery2.where(clause);
         }
 
         //Sort computer
         switch(sort) {
             case 0:
-                criteria.addOrder(Order.asc("name"));
+                criteriaQuery.orderBy(cb.asc(root.get("name")));
                 break;
             case 1:
-                criteria.addOrder(Order.desc("name"));
+                criteriaQuery.orderBy(cb.desc(root.get("name")));
                 break;
             case 2:
-                criteria.addOrder(Order.asc("introduced"));
+                criteriaQuery.orderBy(cb.asc(root.get("introduced")));
                 break;
             case 3:
-                criteria.addOrder(Order.desc("introduced"));
+                criteriaQuery.orderBy(cb.desc(root.get("introduced")));
                 break;
             case 4:
-                criteria.addOrder(Order.asc("discontinued"));
+                criteriaQuery.orderBy(cb.asc(root.get("discontinued")));
                 break;
             case 5:
-                criteria.addOrder(Order.desc("discontinued"));
+                criteriaQuery.orderBy(cb.desc(root.get("discontinued")));
                 break;
             case 6:
-                criteria.addOrder(Order.asc("company.name"));
+                criteriaQuery.orderBy(cb.asc(root.get("company.name")));
                 break;
             case 7:
-                criteria.addOrder(Order.desc("company.name"));
+                criteriaQuery.orderBy(cb.desc(root.get("company.name")));
                 break;
         }
 
         //Pagination
-        criteria.setFirstResult(offset);
+        Query query = em.createQuery(criteriaQuery.select(root));
+
+        query.setFirstResult(offset);
         if(limit>0) {
-            criteria.setMaxResults(limit).setFetchSize(limit);
+            query.setMaxResults(limit);
         }
 
-        computers = criteria.list();
+        computers = query.getResultList();
 
         computerPage.setItems(computers);
 
-        totalCount = ((Long)criteriaCount.setProjection(Projections.rowCount()).uniqueResult()).intValue();
+        //Count (executing second query)
+        totalCount = em.createQuery(criteriaQuery2.select(cb.count(root2))).getSingleResult().intValue();
 
         logger.debug("Found " + computers.size() + " elements");
 
@@ -148,7 +147,12 @@ public class ComputerDaoImpl implements ComputerDao {
 
         Computer computer = null;
 
-        computer = (Computer)sessionFactory.getCurrentSession().get(Computer.class,computerId);
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Computer> criteriaQuery = cb.createQuery(Computer.class);
+        Root<Computer> root = criteriaQuery.from(Computer.class);
+        criteriaQuery.where(cb.equal(root.<Long>get("id"),computerId));
+
+        computer = em.createQuery(criteriaQuery.select(root)).getSingleResult();
 
         logger.debug("Leaving retrieve");
         return computer;
@@ -158,7 +162,7 @@ public class ComputerDaoImpl implements ComputerDao {
     public void update(Computer computer) {
         logger.debug("Entering update");
 
-        sessionFactory.getCurrentSession().merge(computer);
+        em.merge(computer);
 
         logger.debug("Leaving update");
     }
@@ -167,7 +171,14 @@ public class ComputerDaoImpl implements ComputerDao {
     public void delete(List<Long> computerIds) {
         logger.debug("Entering delete");
 
-        sessionFactory.getCurrentSession().createQuery("DELETE FROM Computer computer WHERE computer.id IN ( :computerIds )").setParameterList("computerIds",computerIds).executeUpdate();
+
+
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaDelete<Computer> criteriaDelete = cb.createCriteriaDelete(Computer.class);
+        Root<Computer> root = criteriaDelete.from(Computer.class);
+        criteriaDelete.where(root.<Long>get("id").in(computerIds));
+
+        em.createQuery(criteriaDelete).executeUpdate();
 
         logger.debug("Leaving delete");
     }
